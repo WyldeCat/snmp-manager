@@ -3,3 +3,5 @@ bin/*
 src/com/wyldecat/snmpclient/R.java
 classes.dex
 key.keystore
+
+.*.swp
