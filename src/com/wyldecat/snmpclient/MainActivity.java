@@ -1,4 +1,8 @@
+// MainActivity.java
+
 package com.wyldecat.snmpclient;
+
+import com.wyldecat.snmpclient.lib.SnmpManager;
 
 import android.app.Activity;
 import android.os.Bundle;
