@@ -1,6 +1,6 @@
 // SnmpManager.java
 
-package com.wyldecat.snmpclient.lib;
+package com.wyldecat.snmpmanager.lib;
 
 public class SnmpManager {
   public SnmpManager() { }
