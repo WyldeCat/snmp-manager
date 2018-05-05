@@ -25,5 +25,8 @@ public class SnmpManager {
     devicePort = port;
   }
   
+  void Get() {}
+  void Set() {}
+  void Walk() {}
 }
 
