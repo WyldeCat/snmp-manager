@@ -3,6 +3,7 @@
 package com.wyldecat.snmpmanager.lib;
 
 import java.net.*;
+import com.wyldecat.snmpmanager.lib.SnmpSchema.Data;
 
 public class SnmpManager {
 
@@ -29,4 +30,3 @@ public class SnmpManager {
   void Set() {}
   void Walk() {}
 }
-
