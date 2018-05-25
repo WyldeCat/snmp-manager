@@ -2,8 +2,15 @@
 
 package com.wyldecat.snmpmanager.lib;
 
+interface ByteCompatible {
+  public int getLength();
+  public void fromByte();
+  public void toByte(byte bytes[], int offset);
+}
+
 public class SnmpSchema {
-  static public class Data { // Data using Basic Encoding Rules
+  /* Data using Basic Encoding Rules */
+  static public class Data implements ByteCompatible { 
     public enum Type {
       INTEGER           ((byte)0x02),
       OCTET_STRING      ((byte)0x04),
@@ -31,18 +38,30 @@ public class SnmpSchema {
       this.length = length;
       value = new byte[length];
     }
+
+    public int getLength() {}
+    public void fromByte() {}
+    public void toByte(byte bytes[], int offset) {}
   }
 
-  static public class VarbindList {
+  static public class VarbindList implements ByteCompatible {
     public Varbind varbinds[];
+
+    public int getLength() {}
+    public void fromByte() {}
+    public void toByte(byte bytes[], int offset) {}
   }
 
-  static public class Varbind {
+  static public class Varbind implements ByteCompatible {
     public Data Variable;
     public Data Value;
+
+    public int getLength() {}
+    public void fromByte() {}
+    public void toByte(byte bytes[], int offset) {}
   }
 
-  static private class Packet {
+  static private class Packet implements ByteCompatible {
     public enum PDUType {
       GET_REQUEST       ((byte)0xA0),
       GET_NEXT_REQUEST  ((byte)0xA1),
@@ -81,5 +100,9 @@ public class SnmpSchema {
     public Data error_idx;
 
     public VarbindList varbind_list;
+
+    public int getLength() {}
+    public void fromByte() {}
+    public void toByte(byte bytes[], int offset) {}
   }
 }

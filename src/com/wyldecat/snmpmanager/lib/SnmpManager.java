@@ -3,7 +3,7 @@
 package com.wyldecat.snmpmanager.lib;
 
 import java.net.*;
-import com.wyldecat.snmpmanager.lib.SnmpSchema.Data;
+import com.wyldecat.snmpmanager.lib.SnmpSchema.*;
 
 public class SnmpManager {
 
