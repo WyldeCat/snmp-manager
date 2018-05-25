@@ -2,6 +2,11 @@
 
 package com.wyldecat.snmpmanager.lib;
 
+interface ByteCompatible {
+  public void fromByte();
+  public void toByte();
+}
+
 public class SnmpSchema {
   static public class Data { // Data using Basic Encoding Rules
     public enum Type {
