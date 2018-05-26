@@ -7,8 +7,8 @@ import java.util.*;
 interface ByteCompatible {
   /* Returns length of data including header */
   public int getLength();
-  public void fromBytes(byte bytes[], int offset);
-  public void toBytes(byte bytes[], int offset);
+  public int fromBytes(byte bytes[], int offset);
+  public int toBytes(byte bytes[], int offset);
 }
 
 public class SnmpSchema {
@@ -26,7 +26,7 @@ public class SnmpSchema {
       TIMETICKS         ((byte)0x43),
       OPAQUE            ((byte)0x44);
 
-      private final byte type_;
+      public final byte type_;
       private Type(byte type) {
         this.type_ = type;
       }
@@ -55,13 +55,37 @@ public class SnmpSchema {
       return 2 + length;
     }
 
-    public void fromBytes(byte bytes[], int offset) {
+    public int fromBytes(byte bytes[], int offset) {
       type = Type.convert(bytes[offset]);
       length = bytes[offset + 1];
       value = Arrays.copyOfRange(bytes, offset + 2, length);
+
+      return offset + 3;
     }
 
-    public void toBytes(byte bytes[], int offset) {}
+    public int toBytes(byte bytes[], int offset) {
+      return 0;
+    }
+  }
+
+  static public class Varbind implements ByteCompatible {
+    public Data variable;
+    public Data value;
+
+    public int getLength() {
+      return 2 + variable.getLength() + value.getLength();
+    }
+
+    public int fromBytes(byte bytes[], int offset) {
+      offset = variable.fromBytes(bytes, offset);
+      offset = value.fromBytes(bytes, offset);
+
+      return offset;
+    }
+
+    public int toBytes(byte bytes[], int offset) {
+      return 0;
+    }
   }
 
   static public class VarbindList implements ByteCompatible {
@@ -77,35 +101,23 @@ public class SnmpSchema {
       return 2 + length;
     }
 
-    public void fromBytes(byte bytes[], int offset) {
+    public int fromBytes(byte bytes[], int offset) {
       int length = bytes[offset + 1];
       varbinds = new Varbind[length];
 
       offset += 2;
       for (int i = 0; i < length; i++) {
-        varbinds[i].fromBytes(bytes, offset);
-        offset += varbinds[i].getLength();
+        offset = varbinds[i].fromBytes(bytes, offset);
       }
+
+      return offset;
     }
 
-    public void toBytes(byte bytes[], int offset) {}
+    public int toBytes(byte bytes[], int offset) {
+      return 0;
+    }
   }
 
-  static public class Varbind implements ByteCompatible {
-    public Data variable;
-    public Data value;
-
-    public int getLength() {
-      return 2 + variable.getLength() + value.getLength();
-    }
-
-    public void fromBytes(byte bytes[], int offset) {
-      variable.fromBytes(bytes, offset);
-      value.fromBytes(bytes, offset + variable.getLength());
-    }
-
-    public void toBytes(byte bytes[], int offset) {}
-  }
 
   static private class Packet implements ByteCompatible {
     public enum PDUType {
@@ -170,20 +182,21 @@ public class SnmpSchema {
         + error_idx.getLength() + varbind_list.getLength();
     }
 
-    public void fromBytes(byte bytes[], int offset) {
+    public int fromBytes(byte bytes[], int offset) {
       pdu_type = PDUType.convert(bytes[offset]);
       length = bytes[offset + 1];
       offset += 2;
 
-      request_id.fromBytes(bytes, offset);
-      offset += request_id.getLength();
+      offset = request_id.fromBytes(bytes, offset);
+      offset = error_status.fromBytes(bytes, offset);
+      offset = error_idx.fromBytes(bytes, offset);
+      offset = varbind_list.fromBytes(bytes, offset);
 
-      error_status.fromBytes(bytes, offset);
-      offset += error_status.getLength();
-
-      error_idx.fromBytes(bytes, offset);
+      return offset;
     }
 
-    public void toBytes(byte bytes[], int offset) {}
+    public int toBytes(byte bytes[], int offset) {
+      return 0;
+    }
   }
 }
