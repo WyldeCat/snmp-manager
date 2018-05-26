@@ -2,10 +2,13 @@
 
 package com.wyldecat.snmpmanager.lib;
 
+import java.util.*;
+
 interface ByteCompatible {
+  /* Returns length of data including header */
   public int getLength();
-  public void fromByte();
-  public void toByte(byte bytes[], int offset);
+  public void fromBytes(byte bytes[], int offset);
+  public void toBytes(byte bytes[], int offset);
 }
 
 public class SnmpSchema {
@@ -27,6 +30,15 @@ public class SnmpSchema {
       private Type(byte type) {
         this.type_ = type;
       }
+
+      static public Type convert(byte b) {
+        for (Type t: Type.values()) {
+          if (b == t.type_) {
+            return t;
+          }
+        }
+        return null;
+      }
     }
 
     public Type type;
@@ -39,26 +51,60 @@ public class SnmpSchema {
       value = new byte[length];
     }
 
-    public int getLength() {}
-    public void fromByte() {}
-    public void toByte(byte bytes[], int offset) {}
+    public int getLength() {
+      return 2 + length;
+    }
+
+    public void fromBytes(byte bytes[], int offset) {
+      type = Type.convert(bytes[offset]);
+      length = bytes[offset + 1];
+      value = Arrays.copyOfRange(bytes, offset + 2, length);
+    }
+
+    public void toBytes(byte bytes[], int offset) {}
   }
 
   static public class VarbindList implements ByteCompatible {
     public Varbind varbinds[];
 
-    public int getLength() {}
-    public void fromByte() {}
-    public void toByte(byte bytes[], int offset) {}
+    public int getLength() {
+      int length = 0;
+
+      for (ByteCompatible bc: varbinds) {
+        length += bc.getLength();
+      }
+
+      return 2 + length;
+    }
+
+    public void fromBytes(byte bytes[], int offset) {
+      int length = bytes[offset + 1];
+      varbinds = new Varbind[length];
+
+      offset += 2;
+      for (int i = 0; i < length; i++) {
+        varbinds[i].fromBytes(bytes, offset);
+        offset += varbinds[i].getLength();
+      }
+    }
+
+    public void toBytes(byte bytes[], int offset) {}
   }
 
   static public class Varbind implements ByteCompatible {
-    public Data Variable;
-    public Data Value;
+    public Data variable;
+    public Data value;
 
-    public int getLength() {}
-    public void fromByte() {}
-    public void toByte(byte bytes[], int offset) {}
+    public int getLength() {
+      return 2 + variable.getLength() + value.getLength();
+    }
+
+    public void fromBytes(byte bytes[], int offset) {
+      variable.fromBytes(bytes, offset);
+      value.fromBytes(bytes, offset + variable.getLength());
+    }
+
+    public void toBytes(byte bytes[], int offset) {}
   }
 
   static private class Packet implements ByteCompatible {
@@ -76,6 +122,15 @@ public class SnmpSchema {
       private PDUType(byte pdu_type) {
         this.pdu_type_ = pdu_type;
       }
+
+      static public PDUType convert(byte b) {
+        for (PDUType t: PDUType.values()) {
+          if (b == t.pdu_type_) {
+            return t;
+          }
+        }
+        return null;
+      }
     }
 
     public enum ErrorStatus {
@@ -90,6 +145,15 @@ public class SnmpSchema {
       private ErrorStatus(int error_status) {
         this.error_status_ = error_status;
       }
+
+      static public ErrorStatus convert(byte b) {
+        for (ErrorStatus t: ErrorStatus.values()) {
+          if (b == t.error_status_) {
+            return t;
+          }
+        }
+        return null;
+      }
     }
 
     public PDUType pdu_type;
@@ -101,8 +165,25 @@ public class SnmpSchema {
 
     public VarbindList varbind_list;
 
-    public int getLength() {}
-    public void fromByte() {}
-    public void toByte(byte bytes[], int offset) {}
+    public int getLength() {
+      return 2 + request_id.getLength() + error_status.getLength()
+        + error_idx.getLength() + varbind_list.getLength();
+    }
+
+    public void fromBytes(byte bytes[], int offset) {
+      pdu_type = PDUType.convert(bytes[offset]);
+      length = bytes[offset + 1];
+      offset += 2;
+
+      request_id.fromBytes(bytes, offset);
+      offset += request_id.getLength();
+
+      error_status.fromBytes(bytes, offset);
+      offset += error_status.getLength();
+
+      error_idx.fromBytes(bytes, offset);
+    }
+
+    public void toBytes(byte bytes[], int offset) {}
   }
 }
