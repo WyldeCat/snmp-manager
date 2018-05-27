@@ -2,7 +2,7 @@
 
 package com.wyldecat.snmpmanager.lib;
 
-import java.util.*;
+import java.util.Arrays;
 
 interface ByteCompatible {
   /* Returns length of data including header */
@@ -48,7 +48,7 @@ public class SnmpSchema {
     public Data(Type type, byte length) {
       this.type = type;
       this.length = length;
-      value = new byte[length];
+      this.value = new byte[length];
     }
 
     public byte getLength() {
@@ -135,7 +135,7 @@ public class SnmpSchema {
     }
   }
 
-  static private class Packet implements ByteCompatible {
+  static public class Packet implements ByteCompatible {
     public enum PDUType {
       GET_REQUEST       ((byte)0xA0),
       GET_NEXT_REQUEST  ((byte)0xA1),
@@ -213,6 +213,7 @@ public class SnmpSchema {
 
     public int toBytes(byte bytes[], int offset) {
       bytes[offset++] = pdu_type.pdu_type_;
+      if (length == 0) length = (byte)(getLength() - 2);
       bytes[offset++] = length;
       
       offset = request_id.toBytes(bytes, offset);
