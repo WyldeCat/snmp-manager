@@ -45,10 +45,23 @@ public class SnmpSchema {
     public byte length;
     public byte value[];
 
-    public Data(Type type, byte length) {
+    public Data() {}
+
+    public Data(Type type, byte len) {
       this.type = type;
-      this.length = length;
-      this.value = new byte[length];
+      this.length = len;
+      this.value = new byte[len];
+    }
+
+    public Data(Type type, byte len, int val) {
+      this.type = type;
+      this.length = len;
+      this.value = new byte[len];
+
+      for (int i = len - 1; i >= 0; i--) {
+        this.value[i] = (byte)(val & 0xff);
+        val >>= 0xff;
+      }
     }
 
     public byte getLength() {
@@ -66,9 +79,29 @@ public class SnmpSchema {
     public int toBytes(byte bytes[], int offset) {
       bytes[offset++] = type.type_;
       bytes[offset++] = length;
-      System.arraycopy(value, 0, bytes, offset, length);
+
+      if (value != null) {
+        System.arraycopy(value, 0, bytes, offset, length);
+      }
 
       return offset + length;
+    }
+
+    public void setOID(byte len, String oid) {
+      type = Type.OBJECT_IDENTIFIER;
+      length = len;
+      value = new byte[len];
+
+      String tmp[] = oid.split("\\.");
+      for (int i = 0; i < len; i++) {
+        value[i] = (byte)Integer.parseInt(tmp[i]);
+      }
+    }
+
+    public void setNull() {
+      type = Type.NULL;
+      length = 0;
+      value = null;
     }
   }
 
@@ -98,7 +131,7 @@ public class SnmpSchema {
   }
 
   static public class VarbindList implements ByteCompatible {
-    public Varbind varbinds[];
+    private Varbind varbinds[];
 
     public byte getLength() {
       int length = 0;
@@ -132,6 +165,15 @@ public class SnmpSchema {
       }
 
       return offset;
+    }
+
+    public void setLength(int len) {
+      varbinds = new Varbind[len];
+    }
+
+    public void setVarbindAt(int idx, Varbind vb) {
+      if (varbinds.length <= idx) return;
+      varbinds[idx] = vb;
     }
   }
 
@@ -184,14 +226,14 @@ public class SnmpSchema {
       }
     }
 
-    public Type type;
-    public byte length;
+    private Type type;
+    private byte length;
 
-    public Data request_id;
-    public Data error_status;
-    public Data error_idx;
+    private Data request_id;
+    private Data error_status;
+    private Data error_idx;
 
-    public VarbindList varbind_list;
+    private VarbindList varbind_list;
 
     public byte getLength() {
       return (byte)(2 + request_id.getLength() + error_status.getLength()
@@ -224,13 +266,38 @@ public class SnmpSchema {
 
       return offset;
     }
+
+    public PDU() {
+      length = 0;
+      varbind_list = new VarbindList();
+    }
+
+    public void setType(Type type) {
+      this.type = type;
+    }
+
+    public void setRequestID(byte len, int request_id_) {
+      request_id = new Data(Data.Type.INTEGER, len, request_id_);
+    }
+
+    public void setErrorStatus(byte len, int error_status_) {
+      error_status = new Data(Data.Type.INTEGER, len, error_status_);
+    }
+
+    public void setErrorIdx(byte len, int error_idx_) {
+      error_idx = new Data(Data.Type.INTEGER, len, error_idx_);
+    }
+
+    public VarbindList getVarbindList() {
+      return varbind_list;
+    }
   }
 
   static public class Message implements ByteCompatible {
-    public byte length;
-    public Data version;
-    public Data community_string;
-    public PDU pdu;
+    private byte length;
+    private Data version;
+    private Data community_string;
+    private PDU pdu;
 
     public byte getLength() {
       if (length == 0) {
@@ -264,6 +331,27 @@ public class SnmpSchema {
       offset = pdu.toBytes(bytes, offset);
 
       return offset;
+    }
+
+    public Message() {
+      length = 0;
+
+      version = new Data(Data.Type.INTEGER, (byte)0x01);
+      version.value[0] = 0x01;
+
+      community_string = new Data(Data.Type.OCTET_STRING, (byte)0x06);
+      community_string.value[0] = 0x70;
+      community_string.value[1] = 0x75;
+      community_string.value[2] = 0x62;
+      community_string.value[3] = 0x6c;
+      community_string.value[4] = 0x69;
+      community_string.value[5] = 0x63;
+
+      pdu = new PDU();
+    }
+
+    public PDU getPDU() {
+      return pdu;
     }
   }
 }

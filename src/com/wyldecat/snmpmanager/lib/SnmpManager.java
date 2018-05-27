@@ -33,59 +33,23 @@ public class SnmpManager {
     byte buff_recv[] = new byte[1024];
     DatagramPacket dp;
     DatagramPacket dp_recv = new DatagramPacket(buff_recv, buff_recv.length);
+
     Message m = new Message();
 
-    /* Construct Message header */
-    m.length = 0;
+    m.getPDU().setType(PDU.Type.GET_REQUEST);
+    m.getPDU().setRequestID((byte)4, 0x1234);
+    m.getPDU().setErrorStatus((byte)1, 0x00);
+    m.getPDU().setErrorIdx((byte)1, 0x00);
 
-    m.version = new Data(Data.Type.INTEGER, (byte)0x01);
-    m.version.value[0] = 0x01;
+    m.getPDU().getVarbindList().setLength(1);
 
-    m.community_string = new Data(Data.Type.OCTET_STRING, (byte)0x06);
-    m.community_string.value[0] = 0x70;
-    m.community_string.value[1] = 0x75;
-    m.community_string.value[2] = 0x62;
-    m.community_string.value[3] = 0x6c;
-    m.community_string.value[4] = 0x69;
-    m.community_string.value[5] = 0x63;
+    Varbind vb = new Varbind();
+    vb.variable = new Data();
+    vb.variable.setOID((byte)8, "41.6.1.2.1.1.1.0");
+    vb.value = new Data();
+    vb.value.setNull();
 
-    m.pdu = new PDU();
-
-    /* Construct PDU */
-    PDU p = m.pdu;
-    p.length = 0;
-
-    p.type = PDU.Type.GET_REQUEST;
-
-    p.request_id = new Data(Data.Type.INTEGER, (byte)0x04);
-    p.request_id.value[0] = (byte)0x08;
-    p.request_id.value[1] = (byte)0x8c;
-    p.request_id.value[2] = (byte)0x1e;
-    p.request_id.value[3] = (byte)0x3b;
-
-    p.error_status = new Data(Data.Type.INTEGER, (byte)0x01);
-    p.error_status.value[0] = 0x00;
-
-    p.error_idx = new Data(Data.Type.INTEGER, (byte)0x01);
-    p.error_idx.value[0] = 0x00;
-
-    p.varbind_list = new VarbindList();
-    p.varbind_list.varbinds = new Varbind[1];
-    p.varbind_list.varbinds[0] = new Varbind();
-    p.varbind_list.varbinds[0].variable =
-      new Data(Data.Type.OBJECT_IDENTIFIER, (byte)0x08);
-
-    p.varbind_list.varbinds[0].variable.value[0] = (byte)0x2b;
-    p.varbind_list.varbinds[0].variable.value[1] = (byte)0x06;
-    p.varbind_list.varbinds[0].variable.value[2] = (byte)0x01;
-    p.varbind_list.varbinds[0].variable.value[3] = (byte)0x02;
-    p.varbind_list.varbinds[0].variable.value[4] = (byte)0x01;
-    p.varbind_list.varbinds[0].variable.value[5] = (byte)0x01;
-    p.varbind_list.varbinds[0].variable.value[6] = (byte)0x01;
-    p.varbind_list.varbinds[0].variable.value[7] = (byte)0x00;
-
-    p.varbind_list.varbinds[0].value =
-      new Data(Data.Type.NULL, (byte)0x00);
+    m.getPDU().getVarbindList().setVarbindAt(0, vb);
 
     buff = new byte[m.getLength()];
     m.toBytes(buff, 0);
@@ -94,12 +58,7 @@ public class SnmpManager {
     try {
       sock.send(dp);
       sock.receive(dp_recv);
-    } catch (Exception e) {
-      Log.d("[SnmpManager]", e.getMessage());
-    }
-
-    Log.d("[SnmpManager]", "Here comes packet");
-    Log.d("[SnmpManager]", Arrays.toString(dp_recv.getData()));
+    } catch (Exception e) { }
   }
 
   public void Set() {}
