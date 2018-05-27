@@ -221,7 +221,7 @@ public class SnmpSchema {
 
       offset = varbind_list.toBytes(bytes, offset);
 
-      return offset ;
+      return offset;
     }
   }
 }
