@@ -135,8 +135,8 @@ public class SnmpSchema {
     }
   }
 
-  static public class Packet implements ByteCompatible {
-    public enum PDUType {
+  static public class PDU implements ByteCompatible {
+    public enum Type {
       GET_REQUEST       ((byte)0xA0),
       GET_NEXT_REQUEST  ((byte)0xA1),
       RESPONSE          ((byte)0xA2),
@@ -146,14 +146,14 @@ public class SnmpSchema {
       TRAP              ((byte)0xA7),
       REPORT            ((byte)0xA8);
 
-      public final byte pdu_type_;
-      private PDUType(byte pdu_type) {
-        this.pdu_type_ = pdu_type;
+      public final byte type_;
+      private Type(byte type) {
+        this.type_ = type;
       }
 
-      static public PDUType convert(byte b) {
-        for (PDUType t: PDUType.values()) {
-          if (b == t.pdu_type_) {
+      static public Type convert(byte b) {
+        for (Type t: Type.values()) {
+          if (b == t.type_) {
             return t;
           }
         }
@@ -184,7 +184,7 @@ public class SnmpSchema {
       }
     }
 
-    public PDUType pdu_type;
+    public Type type;
     public byte length;
 
     public Data request_id;
@@ -199,7 +199,7 @@ public class SnmpSchema {
     }
 
     public int fromBytes(byte bytes[], int offset) {
-      pdu_type = PDUType.convert(bytes[offset]);
+      type = Type.convert(bytes[offset]);
       length = bytes[offset + 1];
       offset += 2;
 
@@ -212,7 +212,7 @@ public class SnmpSchema {
     }
 
     public int toBytes(byte bytes[], int offset) {
-      bytes[offset++] = pdu_type.pdu_type_;
+      bytes[offset++] = type.type_;
       if (length == 0) length = (byte)(getLength() - 2);
       bytes[offset++] = length;
       
@@ -221,6 +221,47 @@ public class SnmpSchema {
       offset = error_idx.toBytes(bytes, offset);
 
       offset = varbind_list.toBytes(bytes, offset);
+
+      return offset;
+    }
+  }
+
+  static public class Message implements ByteCompatible {
+    public byte length;
+    public Data version;
+    public Data community_string;
+    public PDU pdu;
+
+    public byte getLength() {
+      if (length == 0) {
+        length = (byte)(version.getLength() + community_string.getLength()
+          + pdu.getLength());
+      }
+
+      return (byte)(length + 2);
+    }
+
+    public int fromBytes(byte bytes[], int offset) {
+      length = bytes[offset + 1];
+      offset += 2;
+
+      offset = version.fromBytes(bytes, offset);
+      offset = community_string.fromBytes(bytes, offset);
+      offset = pdu.fromBytes(bytes, offset);
+      
+      return offset;
+    }
+
+    public int toBytes(byte bytes[], int offset) {
+      if (length == 0) {
+        getLength();
+      }
+
+      bytes[offset++] = 0x30;
+      bytes[offset++] = length;
+      offset = version.toBytes(bytes, offset);
+      offset = community_string.toBytes(bytes, offset);
+      offset = pdu.toBytes(bytes, offset);
 
       return offset;
     }

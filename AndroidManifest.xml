@@ -1,5 +1,6 @@
 <?xml version='1.0'?>
 <manifest xmlns:a='http://schemas.android.com/apk/res/android' package='com.wyldecat.snmpmanager' a:versionCode='0' a:versionName='0'>
+    <uses-permission a:name='android.permission.INTERNET'/>
     <application a:label='Snmp Manager'>
         <activity a:name='com.wyldecat.snmpmanager.MainActivity'>
             <intent-filter>
