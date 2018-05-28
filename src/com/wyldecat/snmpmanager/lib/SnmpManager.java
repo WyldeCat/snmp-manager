@@ -59,6 +59,16 @@ public class SnmpManager {
       sock.send(dp);
       sock.receive(dp_recv);
     } catch (Exception e) { }
+    
+    Log.d("[SnmpManager]", Arrays.toString(buff_recv)); 
+
+    Message m_recv = new Message();
+
+    m_recv.fromBytes(buff_recv, 0);
+    vb = m_recv.getPDU().getVarbindList().getVarbindAt(0);
+
+    Log.d("[SnmpManager]", Arrays.toString(vb.variable.value)); 
+    Log.d("[SnmpManager]", Arrays.toString(vb.value.value)); 
   }
 
   public void Set() {}

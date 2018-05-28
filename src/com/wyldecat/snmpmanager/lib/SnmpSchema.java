@@ -73,7 +73,7 @@ public class SnmpSchema {
       length = bytes[offset + 1];
       value = Arrays.copyOfRange(bytes, offset + 2, offset + 2 + length);
 
-      return offset + 3;
+      return offset + 2 + length;
     }
 
     public int toBytes(byte bytes[], int offset) {
@@ -128,6 +128,11 @@ public class SnmpSchema {
 
       return offset;
     }
+
+    public Varbind() {
+      variable = new Data();
+      value = new Data();
+    }
   }
 
   static public class VarbindList implements ByteCompatible {
@@ -145,10 +150,20 @@ public class SnmpSchema {
 
     public int fromBytes(byte bytes[], int offset) {
       int length = bytes[offset + 1];
-      varbinds = new Varbind[length];
+      int cnt = 0, idx = offset + 2;
+
+      while (length > 0) {
+        cnt++;
+        length -= 2 + bytes[idx + 1];
+        idx += 2 + bytes[idx + 1];
+      }
+
+      varbinds = new Varbind[cnt];
 
       offset += 2;
-      for (int i = 0; i < length; i++) {
+      for (int i = 0; i < cnt; i++) {
+        varbinds[i] = new Varbind();
+          varbinds[i] = new Varbind();
         offset = varbinds[i].fromBytes(bytes, offset);
       }
 
@@ -174,6 +189,10 @@ public class SnmpSchema {
     public void setVarbindAt(int idx, Varbind vb) {
       if (varbinds.length <= idx) return;
       varbinds[idx] = vb;
+    }
+
+    public final Varbind getVarbindAt(int idx) {
+      return varbinds[idx];
     }
   }
 
