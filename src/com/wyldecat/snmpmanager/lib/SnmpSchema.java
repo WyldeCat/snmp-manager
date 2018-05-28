@@ -114,6 +114,8 @@ public class SnmpSchema {
     }
 
     public int fromBytes(byte bytes[], int offset) {
+      offset += 2;
+
       offset = variable.fromBytes(bytes, offset);
       offset = value.fromBytes(bytes, offset);
 
@@ -163,7 +165,6 @@ public class SnmpSchema {
       offset += 2;
       for (int i = 0; i < cnt; i++) {
         varbinds[i] = new Varbind();
-          varbinds[i] = new Varbind();
         offset = varbinds[i].fromBytes(bytes, offset);
       }
 
