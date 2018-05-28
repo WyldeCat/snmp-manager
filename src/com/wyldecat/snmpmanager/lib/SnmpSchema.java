@@ -71,7 +71,7 @@ public class SnmpSchema {
     public int fromBytes(byte bytes[], int offset) {
       type = Type.convert(bytes[offset]);
       length = bytes[offset + 1];
-      value = Arrays.copyOfRange(bytes, offset + 2, length);
+      value = Arrays.copyOfRange(bytes, offset + 2, offset + 2 + length);
 
       return offset + 3;
     }
@@ -261,7 +261,6 @@ public class SnmpSchema {
       offset = request_id.toBytes(bytes, offset);
       offset = error_status.toBytes(bytes, offset);
       offset = error_idx.toBytes(bytes, offset);
-
       offset = varbind_list.toBytes(bytes, offset);
 
       return offset;
@@ -269,6 +268,10 @@ public class SnmpSchema {
 
     public PDU() {
       length = 0;
+
+      request_id = new Data();
+      error_status = new Data();
+      error_idx = new Data();
       varbind_list = new VarbindList();
     }
 
