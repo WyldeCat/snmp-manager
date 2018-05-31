@@ -1,12 +1,30 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:tools="http://schemas.android.com/tools"
+<GridLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:columnCount="2"
+    android:orientation="horizontal" >
  
     <Button android:id="@+id/btn_get"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="false"
+        style="@style/DefaultButton"
         android:text="@string/text_btn_get"
         android:onClick="onGet" />
 
-</RelativeLayout>
+    <EditText android:id="@+id/edit_text_oid"
+        style="@style/DefaultEditText"
+        android:hint="OID" />
+
+    <Button android:id="@+id/btn_set"
+        style="@style/DefaultButton"
+        android:text="@string/text_btn_set"
+        android:onClick="onSet" />
+
+    <EditText android:id="@+id/edit_text_value"
+        style="@style/DefaultEditText"
+        android:hint="VALUE" />
+
+    <Button android:id="@+id/btn_walk"
+        style="@style/DefaultButton"
+        android:text="@string/text_btn_walk"
+        android:onClick="onWalk" />
+
+</GridLayout>
