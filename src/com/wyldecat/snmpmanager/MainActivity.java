@@ -22,7 +22,9 @@ public class MainActivity extends Activity {
   }
 
   public void onGet(View view) {
-    snmpManager.Get("");
+    try {
+      snmpManager.Get("1.3.6.1.2.1.2.2.1.7.1");
+    } catch (Exception ignore) { }
   }
 }
 

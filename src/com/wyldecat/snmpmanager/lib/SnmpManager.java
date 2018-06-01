@@ -37,7 +37,25 @@ public class SnmpManager {
     pkt_send.setPort(port);
   }
 
-  public void Get(String OID) {
+  private String checkOID(String OID) throws Exception {
+    if (OID.charAt(0) == '1' && OID.charAt(1) == '.')  {
+      int nextDot = 1;
+      int calculated = 0;
+
+      while (OID.charAt(++nextDot) != '.');
+
+      calculated =
+        40 + Integer.parseInt(OID.substring(2, nextDot));
+
+      return Integer.toString(calculated) + OID.substring(nextDot);
+    }
+
+    return OID;
+  }
+
+  public void Get(String OID) throws Exception {
+    OID = checkOID(OID);
+
     m.getPDU().setType(PDU.Type.GET_REQUEST);
     m.getPDU().setRequestID((byte)4, 0x1234);
     m.getPDU().setErrorStatus((byte)1, 0x00);
@@ -47,7 +65,7 @@ public class SnmpManager {
 
     Varbind vb = new Varbind();
     vb.variable = new Data();
-    vb.variable.setOID((byte)8, "41.6.1.2.1.1.1.0");
+    vb.variable.setOID((byte)OID.split("\\.").length, OID);
     vb.value = new Data();
     vb.value.setNull();
 
