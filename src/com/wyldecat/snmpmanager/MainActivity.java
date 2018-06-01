@@ -22,7 +22,7 @@ public class MainActivity extends Activity {
   }
 
   public void onGet(View view) {
-    snmpManager.Get();
+    snmpManager.Get("");
   }
 }
 
