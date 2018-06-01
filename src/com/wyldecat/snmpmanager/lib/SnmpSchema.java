@@ -182,6 +182,10 @@ public class SnmpSchema {
       variable = new Data();
       value = new Data();
     }
+
+    public String toString() {
+      return variable.toString() + " = " + value.toString();
+    }
   }
 
   static public class VarbindList implements ByteCompatible {
