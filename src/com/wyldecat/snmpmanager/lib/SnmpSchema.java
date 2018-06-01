@@ -103,6 +103,53 @@ public class SnmpSchema {
       length = 0;
       value = null;
     }
+
+    public String toString() {
+      switch (type) {
+      case INTEGER: {
+        int val = 0;
+        for (int i = length - 1; i >= 0; i--) {
+          val += value[i];
+          val <<= 1;
+        }
+        return Integer.toString(val); 
+      }
+      case OCTET_STRING: {
+        return "";
+      }
+      case OBJECT_IDENTIFIER: {
+        String ret = "";
+        for (int i = 0; i < length; i++) {
+          ret += Integer.toString(value[i]) +
+            ((i != length - 1) ? "." : "");
+        }
+        return ret; 
+      }
+      case NULL: {
+        return "";
+      }
+      case SEQUENCE: {
+        return "";
+      }
+      case IPADDRESS: {
+        return "";
+      }
+      case COUNTER: {
+        return "";
+      }
+      case GAUGE: {
+        return "";
+      }
+      case TIMETICKS: {
+        return "";
+      }
+      case OPAQUE: {
+        return "";
+      }
+      }
+
+      return "";
+    }
   }
 
   static public class Varbind implements ByteCompatible {
