@@ -5,13 +5,16 @@ package com.wyldecat.snmpmanager;
 import android.app.Activity;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.Button;
+import android.widget.EditText;
+import android.util.Log;
 
 import com.wyldecat.snmpmanager.lib.SnmpManager;
 
 public class MainActivity extends Activity {
 
   SnmpManager snmpManager;
+  EditText editTextOID;
+  EditText editTextValue;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -19,11 +22,14 @@ public class MainActivity extends Activity {
 
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
+
+    editTextOID = (EditText)findViewById(R.id.edit_text_oid);
+    editTextValue = (EditText)findViewById(R.id.edit_text_value);
   }
 
   public void onGet(View view) {
     try {
-      snmpManager.Get("1.3.6.1.2.1.2.2.1.7.1");
+      snmpManager.Get(editTextOID.getText().toString());
     } catch (Exception ignore) { }
   }
 }

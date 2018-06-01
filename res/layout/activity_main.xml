@@ -11,7 +11,8 @@
 
     <EditText android:id="@+id/edit_text_oid"
         style="@style/DefaultEditText"
-        android:hint="OID" />
+        android:hint="OID"
+        android:text="1.3.6.1.2.1.2.2.1.7.1" />
 
     <Button android:id="@+id/btn_set"
         style="@style/DefaultButton"
