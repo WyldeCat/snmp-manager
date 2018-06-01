@@ -1,31 +1,44 @@
-<GridLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:columnCount="2"
-    android:orientation="horizontal" >
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical" >
  
-    <Button android:id="@+id/btn_get"
-        style="@style/DefaultButton"
-        android:text="@string/text_btn_get"
-        android:onClick="onGet" />
+    <GridLayout android:id="@+id/grid"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:columnCount="2" >
 
-    <EditText android:id="@+id/edit_text_oid"
-        style="@style/DefaultEditText"
-        android:hint="OID"
-        android:text="1.3.6.1.2.1.2.2.1.7.1" />
+        <Button android:id="@+id/btn_get"
+            style="@style/DefaultButton"
+            android:text="@string/text_btn_get"
+            android:onClick="onGet" />
 
-    <Button android:id="@+id/btn_set"
-        style="@style/DefaultButton"
-        android:text="@string/text_btn_set"
-        android:onClick="onSet" />
+        <EditText android:id="@+id/edit_text_oid"
+            style="@style/DefaultEditText"
+            android:hint="OID"
+            android:text="1.3.6.1.2.1.2.2.1.7.1" />
 
-    <EditText android:id="@+id/edit_text_value"
-        style="@style/DefaultEditText"
-        android:hint="VALUE" />
+        <Button android:id="@+id/btn_set"
+            style="@style/DefaultButton"
+            android:text="@string/text_btn_set"
+            android:onClick="onSet" />
 
-    <Button android:id="@+id/btn_walk"
-        style="@style/DefaultButton"
-        android:text="@string/text_btn_walk"
-        android:onClick="onWalk" />
+        <EditText android:id="@+id/edit_text_value"
+            style="@style/DefaultEditText"
+            android:hint="VALUE" />
 
-</GridLayout>
+        <Button android:id="@+id/btn_walk"
+            style="@style/DefaultButton"
+            android:text="@string/text_btn_walk"
+            android:onClick="onWalk" />
+
+    </GridLayout>
+
+    <TextView android:id="@+id/text_view_res"
+        android:background="@drawable/border"
+        android:layout_margin="5dp"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+</LinearLayout>
