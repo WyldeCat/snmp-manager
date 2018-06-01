@@ -53,7 +53,9 @@ public class SnmpManager {
     return OID;
   }
 
-  public void Get(String OID) throws Exception {
+  public String Get(String OID) throws Exception {
+    String ret;
+
     OID = checkOID(OID);
 
     m.getPDU().setType(PDU.Type.GET_REQUEST);
@@ -77,15 +79,15 @@ public class SnmpManager {
       sock.send(pkt_send);
       sock.receive(pkt_recv);
     } catch (Exception e) { }
-    
-    Log.d("[SnmpManager]", Arrays.toString(buff_recv)); 
 
     m.fromBytes(buff_recv, 0);
 
-    vb = m.getPDU().getVarbindList().getVarbindAt(0);
+    ret = m.getPDU().getVarbindList().getVarbindAt(0).toString();
+    if (ret.charAt(0) == '4' && ret.charAt(1) == '3') {
+      ret = "1.3." + ret.substring(3); // HACK
+    }
 
-    Log.d("[SnmpManager]", Arrays.toString(vb.variable.value)); 
-    Log.d("[SnmpManager]", Arrays.toString(vb.value.value)); 
+    return ret;
   }
 
   public void Set() {}
