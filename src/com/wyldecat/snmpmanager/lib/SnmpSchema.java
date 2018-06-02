@@ -3,6 +3,7 @@
 package com.wyldecat.snmpmanager.lib;
 
 import java.util.Arrays;
+import java.nio.charset.Charset;
 
 interface ByteCompatible {
   /* Returns length of data including header */
@@ -115,7 +116,7 @@ public class SnmpSchema {
         return Integer.toString(val); 
       }
       case OCTET_STRING: {
-        return "";
+        return new String(value, Charset.forName("US-ASCII"));
       }
       case OBJECT_IDENTIFIER: {
         String ret = "";
