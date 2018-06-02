@@ -75,6 +75,7 @@ public class SnmpManager {
     m.getPDU().getVarbindList().setVarbindAt(0, vb);
 
     m.toBytes(buff_send, 0);
+    pkt_send.setLength(m.getLength());
 
     try {
       sock.send(pkt_send);
