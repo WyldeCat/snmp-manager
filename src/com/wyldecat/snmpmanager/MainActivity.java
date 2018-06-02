@@ -4,6 +4,8 @@ package com.wyldecat.snmpmanager;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -13,10 +15,18 @@ import com.wyldecat.snmpmanager.lib.SnmpManager;
 
 public class MainActivity extends Activity {
 
-  SnmpManager snmpManager;
-  EditText editTextOID;
-  EditText editTextValue;
-  TextView textViewRes;
+  private SnmpManager snmpManager;
+  private EditText editTextOID;
+  private EditText editTextValue;
+  private TextView textViewRes;
+
+  final private Handler handler = new Handler(){
+    @Override
+    public void handleMessage(Message msg) {
+      textViewRes.append((String)msg.obj + "\n");
+      super.handleMessage(msg);
+    }
+  };
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -35,6 +45,26 @@ public class MainActivity extends Activity {
       textViewRes.setText(
         snmpManager.Get(editTextOID.getText().toString()));
     } catch (Exception ignore) { }
+  }
+
+  public void onWalk(View view) {
+    textViewRes.setText("");
+    new Thread(new Runnable() {
+      private SnmpManager snmpManager;
+      private TextView textViewRes;
+
+      public Runnable setup(SnmpManager snmpManager, TextView textViewRes) {
+        this.snmpManager = snmpManager;
+        this.textViewRes = textViewRes;
+
+        return this;
+      }
+      public void run() {
+        try {
+          snmpManager.Walk(handler);
+        } catch (Exception ignore) { }
+      }
+    }.setup(snmpManager, textViewRes)).start();
   }
 }
 

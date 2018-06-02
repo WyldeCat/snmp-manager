@@ -5,6 +5,9 @@ package com.wyldecat.snmpmanager.lib;
 import java.net.*;
 import java.util.Arrays;
 import android.util.Log;
+import android.widget.TextView;
+import android.os.Handler;
+import android.os.Message;
 
 import com.wyldecat.snmpmanager.lib.SnmpSchema.*;
 
@@ -20,7 +23,7 @@ public class SnmpManager {
   private final DatagramPacket pkt_send =
     new DatagramPacket(buff_send, buff_send.length);
 
-  private Message m;
+  private SnmpSchema.Message m;
 
   public SnmpManager(String addr, int port) {
     DatagramSocket _sock = null;
@@ -53,13 +56,14 @@ public class SnmpManager {
     return OID;
   }
 
-  public String Get(String OID) throws Exception {
+  private String get(String OID, boolean isNextRequest) throws Exception {
     String ret;
 
     OID = checkOID(OID);
-    m = new Message();
+    m = new SnmpSchema.Message();
 
-    m.getPDU().setType(PDU.Type.GET_REQUEST);
+    m.getPDU().setType(isNextRequest ? PDU.Type.GET_NEXT_REQUEST :
+      PDU.Type.GET_REQUEST);
     m.getPDU().setRequestID((byte)4, 0x1234);
     m.getPDU().setErrorStatus((byte)1, 0x00);
     m.getPDU().setErrorIdx((byte)1, 0x00);
@@ -92,6 +96,20 @@ public class SnmpManager {
     return ret;
   }
 
+  public String Get(String OID) throws Exception {
+    return get(OID, false);
+  }
+
+  public void Walk(Handler handler) throws Exception {
+    String OID = new String("1.2.1"); 
+    while (true) {
+      String str = new String(get(OID, true));
+      OID = m.getPDU().getVarbindList().getVarbindAt(0).variable.toString();
+      android.os.Message msg = handler.obtainMessage();
+      msg.obj = str;
+      handler.sendMessage(msg);
+    }
+  }
+
   public void Set() {}
-  public void Walk() {}
 }
