@@ -20,7 +20,7 @@ public class SnmpManager {
   private final DatagramPacket pkt_send =
     new DatagramPacket(buff_send, buff_send.length);
 
-  private final Message m = new Message();
+  private Message m;
 
   public SnmpManager(String addr, int port) {
     DatagramSocket _sock = null;
@@ -57,6 +57,7 @@ public class SnmpManager {
     String ret;
 
     OID = checkOID(OID);
+    m = new Message();
 
     m.getPDU().setType(PDU.Type.GET_REQUEST);
     m.getPDU().setRequestID((byte)4, 0x1234);
