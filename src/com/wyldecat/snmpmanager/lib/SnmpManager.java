@@ -7,11 +7,10 @@ import java.util.Arrays;
 import android.util.Log;
 import android.widget.TextView;
 import android.os.Handler;
-import android.os.Message;
 
 import org.snmp4j.asn1.BER;
 
-import com.wyldecat.snmpmanager.lib.SnmpSchema.*;
+import com.wyldecat.snmpmanager.lib.schema.*;
 
 public class SnmpManager {
 
@@ -25,7 +24,7 @@ public class SnmpManager {
   private final DatagramPacket pkt_send =
     new DatagramPacket(buff_send, buff_send.length);
 
-  private SnmpSchema.Message m;
+  private Message m;
 
   public SnmpManager(String addr, int port) {
     DatagramSocket _sock = null;
@@ -62,7 +61,7 @@ public class SnmpManager {
     String ret;
 
     OID = checkOID(OID);
-    m = new SnmpSchema.Message();
+    m = new Message();
 
     m.getPDU().setType(isNextRequest ? PDU.Type.GET_NEXT_REQUEST :
       PDU.Type.GET_REQUEST);
