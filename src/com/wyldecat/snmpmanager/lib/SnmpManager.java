@@ -9,6 +9,8 @@ import android.widget.TextView;
 import android.os.Handler;
 import android.os.Message;
 
+import org.snmp4j.asn1.BER;
+
 import com.wyldecat.snmpmanager.lib.SnmpSchema.*;
 
 public class SnmpManager {
@@ -88,12 +90,7 @@ public class SnmpManager {
 
     m.fromBytes(buff_recv, 0);
 
-    ret = m.getPDU().getVarbindList().getVarbindAt(0).toString();
-    if (ret.charAt(0) == '4' && ret.charAt(1) == '3') {
-      ret = "1.3." + ret.substring(3); // HACK
-    }
-
-    return ret;
+    return m.getPDU().getVarbindList().getVarbindAt(0).toString();
   }
 
   public String Get(String OID) throws Exception {
