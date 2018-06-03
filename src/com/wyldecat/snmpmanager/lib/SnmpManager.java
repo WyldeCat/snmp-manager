@@ -102,7 +102,7 @@ public class SnmpManager {
 
   public void Walk(Handler handler) throws Exception {
     String OID = new String("1.2.1"); 
-    while (true) {
+    while (!OID.equals("1.3.6.1.4.1")) {
       String str = new String(get(OID, true));
       OID = m.getPDU().getVarbindList().getVarbindAt(0).variable.toString();
       android.os.Message msg = handler.obtainMessage();
