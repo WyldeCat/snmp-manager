@@ -4,9 +4,16 @@ package com.wyldecat.snmpmanager.lib;
 
 import java.net.*;
 import java.util.Arrays;
+import java.nio.ByteBuffer;
 import android.util.Log;
+import android.widget.TextView;
+import android.os.Handler;
 
-import com.wyldecat.snmpmanager.lib.SnmpSchema.*;
+import org.snmp4j.asn1.BER;
+import org.snmp4j.asn1.BERInputStream;
+import org.snmp4j.asn1.BEROutputStream;
+
+import com.wyldecat.snmpmanager.lib.schema.*;
 
 public class SnmpManager {
 
@@ -20,7 +27,8 @@ public class SnmpManager {
   private final DatagramPacket pkt_send =
     new DatagramPacket(buff_send, buff_send.length);
 
-  private final Message m = new Message();
+  private Message m_recv;
+  private Message m_send;
 
   public SnmpManager(String addr, int port) {
     DatagramSocket _sock = null;
@@ -35,6 +43,17 @@ public class SnmpManager {
 
     pkt_send.setAddress(deviceAddr);
     pkt_send.setPort(port);
+
+    m_recv = new Message();
+    m_send = new Message();
+
+    m_send.setSnmpVersion(1, 1)
+      .setCommunityString(new String("public"))
+      .setPDU(
+        new PDU().setRequestID(0x1234, 2)
+          .setErrorStatus(0, 1)
+          .setErrorIndex(0, 1)
+    );
   }
 
   private String checkOID(String OID) throws Exception {
@@ -53,43 +72,48 @@ public class SnmpManager {
     return OID;
   }
 
-  public String Get(String OID) throws Exception {
-    String ret;
+  private String get(String oid, boolean isNextRequest) throws Exception {
+    BEROutputStream bos = new BEROutputStream(ByteBuffer.wrap(buff_send));
+    BERInputStream bis = new BERInputStream(ByteBuffer.wrap(buff_recv));
 
-    OID = checkOID(OID);
+    m_send.getPDU().setType((isNextRequest ? (byte)0xa1 : (byte)0xa0))
+      .getVarbindList().setVarbindAt(0, new Varbind(
+        new OID(oid), new Null()
+      )
+    );
+    m_send.updateLength();
+    m_send.encodeBER(bos);
 
-    m.getPDU().setType(PDU.Type.GET_REQUEST);
-    m.getPDU().setRequestID((byte)4, 0x1234);
-    m.getPDU().setErrorStatus((byte)1, 0x00);
-    m.getPDU().setErrorIdx((byte)1, 0x00);
+    pkt_send.setLength(m_send.getBERLength());
 
-    m.getPDU().getVarbindList().setLength(1);
+    sock.send(pkt_send);
+    sock.receive(pkt_recv);
 
-    Varbind vb = new Varbind();
-    vb.variable = new Data();
-    vb.variable.setOID((byte)OID.split("\\.").length, OID);
-    vb.value = new Data();
-    vb.value.setNull();
+    m_recv.decodeBER(bis);
 
-    m.getPDU().getVarbindList().setVarbindAt(0, vb);
-
-    m.toBytes(buff_send, 0);
-
-    try {
-      sock.send(pkt_send);
-      sock.receive(pkt_recv);
-    } catch (Exception e) { }
-
-    m.fromBytes(buff_recv, 0);
-
-    ret = m.getPDU().getVarbindList().getVarbindAt(0).toString();
-    if (ret.charAt(0) == '4' && ret.charAt(1) == '3') {
-      ret = "1.3." + ret.substring(3); // HACK
-    }
-
-    return ret;
+    return m_recv.getPDU().getVarbindList().getVarbindAt(0).toString();
   }
 
-  public void Set() {}
-  public void Walk() {}
+  public String Get(String oid) throws Exception {
+    return get(oid, false);
+  }
+
+  public void Walk(Handler handler) throws Exception {
+    String oid = "1.2.1";
+    String ret;
+    android.os.Message msg;
+    int num_step = 16;
+
+    while (num_step-- > 0) {
+      ret = get(oid, true);
+      oid = m_recv.getPDU().getVarbindList().getVarbindAt(0).getVariable().toString();
+      Log.d("snmp", oid);
+
+      msg = handler.obtainMessage();
+      msg.obj = ret;
+      handler.sendMessage(msg);
+    }
+  }
+
+  public void Set() { }
 }

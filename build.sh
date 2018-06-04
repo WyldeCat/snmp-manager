@@ -9,7 +9,7 @@ APKSIGNER="$ANDROID_SDK/build-tools/27.0.3/apksigner"
 PLATFORM="$ANDROID_SDK/platforms/android-27/android.jar"
 
 echo "Cleaning..."
-rm -rf obj/*
+rm -rf obj/com/*
 rm -rf bin/*
 rm -rf src/com/wyldecat/snmpmanager/R.java
 rm -rf classes.dex
