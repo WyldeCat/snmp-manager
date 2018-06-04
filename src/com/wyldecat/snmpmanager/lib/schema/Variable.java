@@ -6,7 +6,7 @@ import org.snmp4j.asn1.BERSerializable;
 
 public abstract class Variable implements BERSerializable {
 
-  protected int length; 
+  protected int length;
 
   public int getBERLength() {
     return length + 2;
