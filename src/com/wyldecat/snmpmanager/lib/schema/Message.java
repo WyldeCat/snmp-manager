@@ -22,6 +22,21 @@ public class Message implements BERSerializable {
     pdu = new PDU();
   }
 
+  public Message setSnmpVersion(int version, int length) {
+    snmpVersion = new Integer32(version, length);
+    return this;
+  }
+
+  public Message setCommunityString(String str) {
+    communityString = new OctetString(str);
+    return this;
+  }
+
+  public Message setPDU(PDU pdu) {
+    this.pdu = pdu;
+    return this;
+  }
+
   public PDU getPDU() {
     return pdu;
   }
