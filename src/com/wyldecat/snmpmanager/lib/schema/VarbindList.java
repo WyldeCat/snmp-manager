@@ -22,6 +22,7 @@ public class VarbindList implements BERSerializable {
 
   public VarbindList(int initialCapacity) {
     varbinds = new ArrayList(initialCapacity);
+    varbinds.add(null);
     length = 0;
   }
 

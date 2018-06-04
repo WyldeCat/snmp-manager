@@ -25,16 +25,20 @@ public class Varbind implements BERSerializable {
     this.length = variable.getBERLength() + value.getBERLength();
   }
 
+  public OID getVariable() {
+    return variable;
+  }
+
+  public String toString() {
+    return variable.toString() + " = " + value.toString();
+  }
+
   public int getBERLength() {
     return length + 2;
   }
 
   public int getBERPayloadLength() {
     return length;
-  }
-
-  public String toString() {
-    return variable.toString() + " = " + value.toString();
   }
 
   public void decodeBER(BERInputStream bis) throws IOException {

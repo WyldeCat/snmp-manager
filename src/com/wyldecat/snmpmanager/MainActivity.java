@@ -44,7 +44,7 @@ public class MainActivity extends Activity {
     try {
       textViewRes.setText(
         snmpManager.Get(editTextOID.getText().toString()));
-    } catch (Exception ignore) { }
+    } catch (Exception ignore) { Log.d("[snmp]", ignore.toString()); }
   }
 
   public void onWalk(View view) {

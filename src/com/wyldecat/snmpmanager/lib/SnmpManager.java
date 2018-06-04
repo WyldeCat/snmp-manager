@@ -72,15 +72,14 @@ public class SnmpManager {
     return OID;
   }
 
-  private String get(String OID, boolean isNextRequest) throws Exception {
+  private String get(String oid, boolean isNextRequest) throws Exception {
     BEROutputStream bos = new BEROutputStream(ByteBuffer.wrap(buff_send));
     BERInputStream bis = new BERInputStream(ByteBuffer.wrap(buff_recv));
 
     m_send.getPDU().setType((isNextRequest ? (byte)0xa1 : (byte)0xa0))
-      .getVarbindList().addVarbind(
-        new Varbind(
-          new OID("1.3.6.1.2.1.2.2.1.7.1"),
-          new Null())
+      .getVarbindList().setVarbindAt(0, new Varbind(
+        new OID(oid), new Null()
+      )
     );
     m_send.updateLength();
     m_send.encodeBER(bos);
@@ -95,11 +94,26 @@ public class SnmpManager {
     return m_recv.getPDU().getVarbindList().getVarbindAt(0).toString();
   }
 
-  public String Get(String OID) throws Exception {
-    return get(OID, false);
+  public String Get(String oid) throws Exception {
+    return get(oid, false);
   }
 
-  public void Walk(Handler handler) throws Exception { }
+  public void Walk(Handler handler) throws Exception {
+    String oid = "1.2.1";
+    String ret;
+    android.os.Message msg;
+    int num_step = 16;
+
+    while (num_step-- > 0) {
+      ret = get(oid, true);
+      oid = m_recv.getPDU().getVarbindList().getVarbindAt(0).getVariable().toString();
+      Log.d("snmp", oid);
+
+      msg = handler.obtainMessage();
+      msg.obj = ret;
+      handler.sendMessage(msg);
+    }
+  }
 
   public void Set() { }
 }
