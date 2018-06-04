@@ -15,7 +15,10 @@ public class VarbindList implements BERSerializable {
   private int length;
   private ArrayList<Varbind> varbinds;
 
-  public VarbindList() { }
+  public VarbindList() {
+    varbinds = new ArrayList(1);
+    length = 0;
+  }
 
   public VarbindList(int initialCapacity) {
     varbinds = new ArrayList(initialCapacity);
