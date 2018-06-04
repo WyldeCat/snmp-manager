@@ -26,7 +26,7 @@ public class PDU implements BERSerializable {
   }
 
   public PDU setType(byte type) {
-    this.type.setValue(type);
+    this.type = new BER.MutableByte(type);
     return this;
   }
 
