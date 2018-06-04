@@ -58,54 +58,14 @@ public class SnmpManager {
   }
 
   private String get(String OID, boolean isNextRequest) throws Exception {
-    String ret;
-
-    OID = checkOID(OID);
-    m = new Message();
-
-    m.getPDU().setType(isNextRequest ? PDU.Type.GET_NEXT_REQUEST :
-      PDU.Type.GET_REQUEST);
-    m.getPDU().setRequestID((byte)4, 0x1234);
-    m.getPDU().setErrorStatus((byte)1, 0x00);
-    m.getPDU().setErrorIdx((byte)1, 0x00);
-
-    m.getPDU().getVarbindList().setLength(1);
-
-    Varbind vb = new Varbind();
-    vb.variable = new Data();
-    vb.variable.setOID((byte)OID.split("\\.").length, OID);
-    vb.value = new Data();
-    vb.value.setNull();
-
-    m.getPDU().getVarbindList().setVarbindAt(0, vb);
-
-    m.toBytes(buff_send, 0);
-    pkt_send.setLength(m.getLength());
-
-    try {
-      sock.send(pkt_send);
-      sock.receive(pkt_recv);
-    } catch (Exception e) { }
-
-    m.fromBytes(buff_recv, 0);
-
-    return m.getPDU().getVarbindList().getVarbindAt(0).toString();
+    return null;
   }
 
   public String Get(String OID) throws Exception {
     return get(OID, false);
   }
 
-  public void Walk(Handler handler) throws Exception {
-    String OID = new String("1.2.1"); 
-    while (!OID.equals("1.3.6.1.4.1")) {
-      String str = new String(get(OID, true));
-      OID = m.getPDU().getVarbindList().getVarbindAt(0).variable.toString();
-      android.os.Message msg = handler.obtainMessage();
-      msg.obj = str;
-      handler.sendMessage(msg);
-    }
-  }
+  public void Walk(Handler handler) throws Exception { }
 
-  public void Set() {}
+  public void Set() { }
 }
