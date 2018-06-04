@@ -22,6 +22,10 @@ public class PDU implements BERSerializable {
   private VarbindList varbinds;
 
   public PDU() {
+    type = new BER.MutableByte();
+    requestID = new Integer32();
+    errorStatus = new Integer32();
+    errorIndex = new Integer32();
     varbinds = new VarbindList(1);
   }
 
@@ -63,6 +67,13 @@ public class PDU implements BERSerializable {
 
   public VarbindList getVarbindList() {
     return varbinds;
+  }
+
+  public void updateLength() {
+    length = requestID.getBERLength();
+    length += errorStatus.getBERLength();
+    length += errorIndex.getBERLength();
+    length += varbinds.getBERLength();
   }
 
   public int getBERLength() {
