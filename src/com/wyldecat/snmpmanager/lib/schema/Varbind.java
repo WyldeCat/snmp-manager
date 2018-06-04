@@ -52,6 +52,7 @@ public class Varbind implements BERSerializable {
     bis.reset();
 
     switch (valueType.getValue()) {
+    case BER.TIMETICKS:
     case BER.INTEGER32: {
       value = new Integer32();
       break;
