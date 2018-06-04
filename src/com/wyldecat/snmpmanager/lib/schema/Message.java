@@ -17,6 +17,8 @@ public class Message implements BERSerializable {
   private PDU pdu;
 
   public Message() {
+    length = 0;
+
     snmpVersion = new Integer32();
     communityString = new OctetString();
     pdu = new PDU();
@@ -27,14 +29,22 @@ public class Message implements BERSerializable {
     return this;
   }
 
-  public Message setCommunityString(String str) {
-    communityString = new OctetString(str);
+  public Message setCommunityString(String communityString) {
+    this.communityString = new OctetString(communityString);
     return this;
   }
 
   public Message setPDU(PDU pdu) {
     this.pdu = pdu;
     return this;
+  }
+
+  public void updateLength() {
+    pdu.updateLength();
+
+    length = snmpVersion.getBERLength();
+    length += communityString.getBERLength();
+    length += pdu.getBERLength();
   }
 
   public PDU getPDU() {
