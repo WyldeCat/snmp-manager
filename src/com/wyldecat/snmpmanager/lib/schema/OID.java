@@ -25,6 +25,16 @@ public class OID extends Variable {
     this.length = splited.length;
   }
 
+  public String toString() {
+    String ret = Integer.toString(oid[0]);
+
+    for (int i = 1; i < oid.length; i++) {
+      ret += "." + Integer.toString(oid[i]);    
+    }
+
+    return ret;
+  }
+
   public void decodeBER(BERInputStream bis) throws IOException {
     oid = BER.decodeOID(bis, new BER.MutableByte());
     length = oid.length;

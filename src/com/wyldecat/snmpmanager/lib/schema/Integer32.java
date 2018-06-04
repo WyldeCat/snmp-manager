@@ -19,6 +19,10 @@ public class Integer32 extends Variable {
     this.length = length;
   }
 
+  public String toString() {
+    return Integer.toString(value);
+  }
+
   public void decodeBER(BERInputStream bis) throws IOException {
     long prev = bis.getPosition();
 

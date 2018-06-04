@@ -20,6 +20,10 @@ public class OctetString extends Variable {
     this.length = str.length();
   }
 
+  public String toString() {
+    return str;
+  }
+
   public void decodeBER(BERInputStream bis) throws IOException {
     BER.MutableByte b = new BER.MutableByte();
     str = new String(BER.decodeString(bis, b),

@@ -14,6 +14,10 @@ public class Null extends Variable {
     length = 0;
   }
 
+  public String toString() {
+    return "NULL";
+  }
+
   public void decodeBER(BERInputStream bis) throws IOException {
     BER.MutableByte b = new BER.MutableByte();
     BER.decodeNull(bis, b);

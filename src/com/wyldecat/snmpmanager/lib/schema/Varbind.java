@@ -33,6 +33,10 @@ public class Varbind implements BERSerializable {
     return length;
   }
 
+  public String toString() {
+    return variable.toString() + " = " + value.toString();
+  }
+
   public void decodeBER(BERInputStream bis) throws IOException {
     BER.MutableByte valueType = new BER.MutableByte();
     length = BER.decodeHeader(bis, new BER.MutableByte());
