@@ -14,8 +14,15 @@ public class OID extends Variable {
 
   public OID() { }
 
-  public OID(String str, int length) {
-    this.length = length;
+  public OID(String str) {
+    String splited[] = str.split("\\.");
+
+    oid = new int[splited.length];
+    for (int i = 0; i < splited.length; i++) {
+      oid[i] = Integer.parseInt(splited[i]);
+    }
+
+    this.length = splited.length;
   }
 
   public void decodeBER(BERInputStream bis) throws IOException {
