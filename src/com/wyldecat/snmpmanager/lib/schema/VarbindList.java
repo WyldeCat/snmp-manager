@@ -39,6 +39,10 @@ public class VarbindList implements BERSerializable {
     length += vb.getBERLength();
   }
 
+  public Varbind getVarbindAt(int idx) {
+    return varbinds.get(idx);
+  }
+
   public int getBERLength() {
     return length + 2;
   }
