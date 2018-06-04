@@ -22,7 +22,7 @@ public class OID extends Variable {
       oid[i] = Integer.parseInt(splited[i]);
     }
 
-    this.length = splited.length;
+    this.length = splited.length - 1; // HACK
   }
 
   public String toString() {
