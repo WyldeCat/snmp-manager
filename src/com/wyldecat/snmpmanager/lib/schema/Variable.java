@@ -8,6 +8,8 @@ public abstract class Variable implements BERSerializable {
 
   protected int length;
 
+  abstract public String toString();
+
   public int getBERLength() {
     return length + 2;
   }
