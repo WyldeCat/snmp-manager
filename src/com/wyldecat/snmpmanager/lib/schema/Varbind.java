@@ -15,6 +15,10 @@ public class Varbind implements BERSerializable {
   private OID variable;
   private Variable value;
 
+  public Varbind() {
+    variable = new OID();
+  }
+
   public Varbind(OID variable, Variable value) {
     this.variable = variable;
     this.value = value;
@@ -33,12 +37,11 @@ public class Varbind implements BERSerializable {
     BER.MutableByte valueType = new BER.MutableByte();
     length = BER.decodeHeader(bis, new BER.MutableByte());
 
-    variable = new OID();
     variable.decodeBER(bis);
 
     bis.mark(length);
     BER.decodeHeader(bis, valueType);
-    bis.reset;
+    bis.reset();
 
     switch (valueType.getValue()) {
     case BER.INTEGER32: {
@@ -58,7 +61,7 @@ public class Varbind implements BERSerializable {
       break;
     }
     default: {
-      throws new IOException();
+      throw new IOException();
     }
     }
 

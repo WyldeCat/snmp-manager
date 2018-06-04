@@ -7,6 +7,9 @@ import java.io.IOException;
 import org.snmp4j.asn1.BER;
 import org.snmp4j.asn1.BERInputStream;
 import org.snmp4j.asn1.BERSerializable;
+import com.wyldecat.snmpmanager.lib.schema.Integer32;
+import com.wyldecat.snmpmanager.lib.schema.Varbind;
+import com.wyldecat.snmpmanager.lib.schema.VarbindList;
 
 public class PDU implements BERSerializable {
 
@@ -58,7 +61,7 @@ public class PDU implements BERSerializable {
     return errorIndex;
   }
 
-  public Varbinds getVarbindList() {
+  public VarbindList getVarbindList() {
     return varbinds;
   }
 
@@ -79,8 +82,8 @@ public class PDU implements BERSerializable {
   }
 
   public void encodeBER(OutputStream os) throws IOException {
-    BER.encodeHeader(os, type, length);
-    requestId.encodeBER(os);
+    BER.encodeHeader(os, type.getValue(), length);
+    requestID.encodeBER(os);
     errorStatus.encodeBER(os);
     errorIndex.encodeBER(os);
     varbinds.encodeBER(os);

@@ -5,6 +5,7 @@ package com.wyldecat.snmpmanager.lib.schema;
 import java.util.ArrayList;
 import java.io.OutputStream;
 import java.io.IOException;
+import org.snmp4j.asn1.BER;
 import org.snmp4j.asn1.BERSerializable;
 import org.snmp4j.asn1.BERInputStream;
 import com.wyldecat.snmpmanager.lib.schema.Varbind;
@@ -27,8 +28,8 @@ public class VarbindList implements BERSerializable {
   }
 
   public void setVarbindAt(int idx, Varbind vb) {
-    if ((Varbind oldVb = varbinds.get(idx)) != null) {
-      length -= oldVb.getBERLength();
+    if (varbinds.get(idx) != null) {
+      length -= varbinds.get(idx).getBERLength();
     }
 
     varbinds.set(idx, vb);
@@ -61,9 +62,9 @@ public class VarbindList implements BERSerializable {
     BER.encodeHeader(os,
       BER.SEQUENCE, length);
 
-    for (int i = 0; i < varbinds.length; i++) {
-      if (varbinds[i] == null) throws new IOException();
-      varbinds[i].encodeBER(os);
+    for (int i = 0; i < varbinds.size(); i++) {
+      if (varbinds.get(i) == null) throw new IOException();
+      varbinds.get(i).encodeBER(os);
     }
   }
 }
