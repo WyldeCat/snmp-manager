@@ -9,6 +9,7 @@ import android.os.Message;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 
 import com.wyldecat.snmpmanager.lib.SnmpManager;
@@ -38,6 +39,8 @@ public class MainActivity extends Activity {
     editTextOID = (EditText)findViewById(R.id.edit_text_oid);
     editTextValue = (EditText)findViewById(R.id.edit_text_value);
     textViewRes = (TextView)findViewById(R.id.text_view_res);
+
+    textViewRes.setMovementMethod(new ScrollingMovementMethod());
   }
 
   public void onGet(View view) {

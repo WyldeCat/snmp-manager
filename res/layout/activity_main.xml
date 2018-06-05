@@ -39,6 +39,8 @@
         android:background="@drawable/border"
         android:layout_margin="5dp"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:maxLines="4096"
+        android:scrollbars="vertical" />
 
 </LinearLayout>
