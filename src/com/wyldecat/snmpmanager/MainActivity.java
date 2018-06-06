@@ -26,7 +26,18 @@ public class MainActivity extends Activity {
   final private Handler handler = new Handler(){
     @Override
     public void handleMessage(Message msg) {
+      int scrollAmount;
+
       textViewRes.append((String)msg.obj + "\n");
+      scrollAmount =
+        textViewRes.getLayout().getLineTop(textViewRes.getLineCount()) -
+        textViewRes.getHeight();
+      if (scrollAmount > 0) {
+        textViewRes.scrollTo(0, scrollAmount);
+      } else {
+        textViewRes.scrollTo(0, 0);
+      }
+
       super.handleMessage(msg);
     }
   };
