@@ -17,6 +17,7 @@ public class Varbind implements BERSerializable {
 
   public Varbind() {
     variable = new OID();
+    length = 0;
   }
 
   public Varbind(OID variable, Variable value) {

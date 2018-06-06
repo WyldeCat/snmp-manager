@@ -76,8 +76,8 @@ public class SnmpManager {
     BEROutputStream bos = new BEROutputStream(ByteBuffer.wrap(buff_send));
     BERInputStream bis = new BERInputStream(ByteBuffer.wrap(buff_recv));
 
-    m_send.getPDU().setType((isNextRequest ? (byte)0xa1 : (byte)0xa0))
-      .getVarbindList().setVarbindAt(0, new Varbind(
+    m_send.getPDU().setType((isNextRequest ? (byte)0xa1 : (byte)0xa0));
+    m_send.getPDU().getVarbindList().setVarbindAt(0, new Varbind(
         new OID(oid), new Null()
       )
     );

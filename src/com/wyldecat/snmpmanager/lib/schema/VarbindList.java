@@ -17,13 +17,14 @@ public class VarbindList implements BERSerializable {
 
   public VarbindList() {
     varbinds = new ArrayList(1);
-    length = 0;
+    varbinds.add(new Varbind());
+    length = 2;
   }
 
   public VarbindList(int initialCapacity) {
     varbinds = new ArrayList(initialCapacity);
-    varbinds.add(null);
-    length = 0;
+    varbinds.add(new Varbind());
+    length = 2;
   }
 
   public void addVarbind(Varbind vb) {

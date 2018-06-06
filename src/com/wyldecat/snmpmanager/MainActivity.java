@@ -2,6 +2,8 @@
 
 package com.wyldecat.snmpmanager;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
 import android.app.Activity;
 import android.os.Bundle;
 import android.os.Handler;
@@ -29,6 +31,13 @@ public class MainActivity extends Activity {
     }
   };
 
+  private String getStackTrace(Exception e) {
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    PrintStream printStream = new PrintStream(baos);
+    e.printStackTrace(printStream);
+    return baos.toString();
+  }
+
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     snmpManager = new SnmpManager("kuwiden.iptime.org", 11161);
@@ -47,7 +56,10 @@ public class MainActivity extends Activity {
     try {
       textViewRes.setText(
         snmpManager.Get(editTextOID.getText().toString()));
-    } catch (Exception ignore) { Log.d("[snmp]", ignore.toString()); }
+    } catch (Exception ignore) {
+      Log.d("[snmp]", ignore.toString());
+      Log.d("[snmp]", getStackTrace(ignore));
+    }
   }
 
   public void onWalk(View view) {
