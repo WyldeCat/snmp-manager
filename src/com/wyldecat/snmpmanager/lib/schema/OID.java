@@ -4,8 +4,10 @@ package com.wyldecat.snmpmanager.lib.schema;
 
 import java.io.OutputStream;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import org.snmp4j.asn1.BER;
 import org.snmp4j.asn1.BERInputStream;
+import org.snmp4j.asn1.BEROutputStream;
 import com.wyldecat.snmpmanager.lib.schema.Variable;
 
 public class OID extends Variable {
@@ -16,13 +18,20 @@ public class OID extends Variable {
 
   public OID(String str) {
     String splited[] = str.split("\\.");
+    byte buf[] = new byte[512];
 
     oid = new int[splited.length];
     for (int i = 0; i < splited.length; i++) {
       oid[i] = Integer.parseInt(splited[i]);
     }
 
-    this.length = splited.length - 1; // HACK
+    BERInputStream bis = new BERInputStream(ByteBuffer.wrap(buf));
+    BEROutputStream bos = new BEROutputStream(ByteBuffer.wrap(buf));
+
+    try {
+      BER.encodeOID(bos, BER.OID, oid);
+      this.length = BER.decodeHeader(bis, new BER.MutableByte());
+    } catch(Exception ignore) { }
   }
 
   public String toString() {
