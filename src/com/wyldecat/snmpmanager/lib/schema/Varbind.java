@@ -30,12 +30,16 @@ public class Varbind implements BERSerializable {
     return variable;
   }
 
+  public Variable getValue() {
+    return value;
+  }
+
   public String toString() {
     return variable.toString() + " = " + value.toString();
   }
 
   public int getBERLength() {
-    return length + 2;
+    return length + 1 + BER.getBERLengthOfLength(length);
   }
 
   public int getBERPayloadLength() {
@@ -52,8 +56,7 @@ public class Varbind implements BERSerializable {
     BER.decodeHeader(bis, valueType);
     bis.reset();
 
-    switch (valueType.getValue()) {
-    case BER.TIMETICKS:
+    switch (valueType.getValue() & 0xFF) {
     case BER.INTEGER32: {
       value = new Integer32();
       break;
@@ -68,6 +71,19 @@ public class Varbind implements BERSerializable {
     }
     case BER.OID: {
       value = new OID();
+      break;
+    }
+    case BER.TIMETICKS:
+    case BER.GAUGE32: {
+      value = new Gauge32();
+      break;
+    }
+    case BER.COUNTER32: {
+      value = new Counter32();
+      break;
+    }
+    case BER.ENDOFMIBVIEW: {
+      value = new EndOfMIBView();
       break;
     }
     default: {

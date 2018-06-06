@@ -9,6 +9,8 @@ import org.snmp4j.asn1.BER;
 import org.snmp4j.asn1.BERInputStream;
 import com.wyldecat.snmpmanager.lib.schema.Variable;
 
+import android.util.Log;
+
 public class OctetString extends Variable {
 
   private String str;
