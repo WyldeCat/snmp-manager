@@ -4,6 +4,7 @@ package com.wyldecat.snmpmanager.lib;
 
 import java.net.*;
 import java.util.Arrays;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.nio.ByteBuffer;
 import android.util.Log;
 import android.widget.TextView;
@@ -30,7 +31,11 @@ public class SnmpManager {
   private Message m_recv;
   private Message m_send;
 
+  private final AtomicBoolean isWalking
+    = new AtomicBoolean(false);
+
   public SnmpManager(String addr, int port) {
+
     DatagramSocket _sock = null;
     InetAddress deviceAddr = null;
 
@@ -94,6 +99,14 @@ public class SnmpManager {
     return m_recv.getPDU().getVarbindList().getVarbindAt(0).toString();
   }
 
+  public boolean isWalking() {
+    return isWalking.get();
+  }
+
+  public void setIsWalking() {
+    isWalking.set(true);
+  }
+
   public String Get(String oid) throws Exception {
     return get(oid, false);
   }
@@ -104,21 +117,26 @@ public class SnmpManager {
     Variable val;
     android.os.Message msg;
 
-    int num_step = 16;
+    try {
+      while (true) {
+        ret = get(oid, true);
+        oid = m_recv.getPDU().getVarbindList().getVarbindAt(0).getVariable().toString();
 
-    while (true) {
-      ret = get(oid, true);
-      oid = m_recv.getPDU().getVarbindList().getVarbindAt(0).getVariable().toString();
+        msg = handler.obtainMessage();
+        msg.obj = ret;
+        handler.sendMessage(msg);
 
-      msg = handler.obtainMessage();
-      msg.obj = ret;
-      handler.sendMessage(msg);
+        val = m_recv.getPDU().getVarbindList().getVarbindAt(0).getValue();
 
-      val = m_recv.getPDU().getVarbindList().getVarbindAt(0).getValue();
-
-      if (val instanceof EndOfMIBView) {
-        break;
+        if (val instanceof EndOfMIBView) {
+          break;
+        }
       }
+
+      isWalking.set(false);
+    } catch (Exception e) {
+      isWalking.set(false);
+      throw e;
     }
   }
 

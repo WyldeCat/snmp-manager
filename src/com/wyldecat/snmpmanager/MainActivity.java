@@ -64,9 +64,12 @@ public class MainActivity extends Activity {
   }
 
   public void onGet(View view) {
+    if (snmpManager.isWalking()) return;
+
     try {
       textViewRes.setText(
         snmpManager.Get(editTextOID.getText().toString()));
+      textViewRes.scrollTo(0, 0);
     } catch (Exception ignore) {
       Log.d("[snmp]", ignore.toString());
       Log.d("[snmp]", getStackTrace(ignore));
@@ -74,7 +77,10 @@ public class MainActivity extends Activity {
   }
 
   public void onWalk(View view) {
+    if (snmpManager.isWalking()) return;
+
     textViewRes.setText("");
+
     new Thread(new Runnable() {
       private SnmpManager snmpManager;
       private TextView textViewRes;
@@ -85,8 +91,10 @@ public class MainActivity extends Activity {
 
         return this;
       }
+
       public void run() {
         try {
+          snmpManager.setIsWalking();
           snmpManager.Walk(handler);
         } catch (Exception ignore) {
           Log.d("[snmp]", ignore.toString());
