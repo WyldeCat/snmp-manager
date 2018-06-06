@@ -4,6 +4,7 @@ package com.wyldecat.snmpmanager;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
+import java.net.SocketTimeoutException;
 import android.app.Activity;
 import android.os.Bundle;
 import android.os.Handler;
@@ -22,11 +23,17 @@ public class MainActivity extends Activity {
   private EditText editTextOID;
   private EditText editTextValue;
   private TextView textViewRes;
+  private TextView textViewTo;
 
   final private Handler handler = new Handler(){
     @Override
     public void handleMessage(Message msg) {
       int scrollAmount;
+
+      if (msg.obj instanceof SocketTimeoutException) {
+        textViewTo.setText("Timeout has occurred!\n");
+        return;
+      }
 
       textViewRes.append((String)msg.obj + "\n");
       scrollAmount =
@@ -59,6 +66,7 @@ public class MainActivity extends Activity {
     editTextOID = (EditText)findViewById(R.id.edit_text_oid);
     editTextValue = (EditText)findViewById(R.id.edit_text_value);
     textViewRes = (TextView)findViewById(R.id.text_view_res);
+    textViewTo = (TextView)findViewById(R.id.text_view_to);
 
     textViewRes.setMovementMethod(new ScrollingMovementMethod());
   }
@@ -66,11 +74,23 @@ public class MainActivity extends Activity {
   public void onGet(View view) {
     if (snmpManager.isWalking()) return;
 
+    textViewTo.setText("");
+
     try {
       textViewRes.setText(
         snmpManager.Get(editTextOID.getText().toString()));
       textViewRes.scrollTo(0, 0);
     } catch (Exception ignore) {
+      if (ignore instanceof SocketTimeoutException) {
+        android.os.Message msg;
+
+        Log.d("[snmp]", ignore.toString());
+        Log.d("[snmp]", getStackTrace(ignore));
+
+        msg = handler.obtainMessage();
+        msg.obj = ignore;
+        handler.sendMessage(msg); 
+      }
       Log.d("[snmp]", ignore.toString());
       Log.d("[snmp]", getStackTrace(ignore));
     }
@@ -79,7 +99,7 @@ public class MainActivity extends Activity {
   public void onWalk(View view) {
     if (snmpManager.isWalking()) return;
 
-    textViewRes.setText("");
+    textViewTo.setText("");
 
     new Thread(new Runnable() {
       private SnmpManager snmpManager;
@@ -97,8 +117,16 @@ public class MainActivity extends Activity {
           snmpManager.setIsWalking();
           snmpManager.Walk(handler);
         } catch (Exception ignore) {
-          Log.d("[snmp]", ignore.toString());
-          Log.d("[snmp]", getStackTrace(ignore));
+          if (ignore instanceof SocketTimeoutException) {
+            android.os.Message msg;
+
+            Log.d("[snmp]", ignore.toString());
+            Log.d("[snmp]", getStackTrace(ignore));
+
+            msg = handler.obtainMessage();
+            msg.obj = ignore;
+            handler.sendMessage(msg); 
+          }
         }
       }
     }.setup(snmpManager, textViewRes)).start();

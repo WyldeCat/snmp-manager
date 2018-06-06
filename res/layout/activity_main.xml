@@ -33,6 +33,13 @@
             android:text="@string/text_btn_walk"
             android:onClick="onWalk" />
 
+        <TextView android:id="@+id/text_view_to"
+            android:textSize="15dp"
+            android:layout_marginTop="0dp"
+            android:layout_marginLeft="5dp"
+            android:layout_width="227dp"
+            android:layout_height="38dp" />
+
     </GridLayout>
 
     <TextView android:id="@+id/text_view_res"

@@ -41,6 +41,7 @@ public class SnmpManager {
 
     try {
       _sock = new DatagramSocket(11501);
+      _sock.setSoTimeout(10000);
       deviceAddr = InetAddress.getByName(addr);
     } catch (Exception ignore) { }
 
@@ -120,7 +121,8 @@ public class SnmpManager {
     try {
       while (true) {
         ret = get(oid, true);
-        oid = m_recv.getPDU().getVarbindList().getVarbindAt(0).getVariable().toString();
+        oid = m_recv.getPDU().getVarbindList()
+          .getVarbindAt(0).getVariable().toString();
 
         msg = handler.obtainMessage();
         msg.obj = ret;
