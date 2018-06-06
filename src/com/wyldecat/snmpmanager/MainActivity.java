@@ -77,7 +77,10 @@ public class MainActivity extends Activity {
       public void run() {
         try {
           snmpManager.Walk(handler);
-        } catch (Exception ignore) { }
+        } catch (Exception ignore) {
+          Log.d("[snmp]", ignore.toString());
+          Log.d("[snmp]", getStackTrace(ignore));
+        }
       }
     }.setup(snmpManager, textViewRes)).start();
   }

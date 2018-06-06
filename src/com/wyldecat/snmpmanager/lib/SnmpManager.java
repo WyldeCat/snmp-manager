@@ -104,10 +104,9 @@ public class SnmpManager {
     android.os.Message msg;
     int num_step = 16;
 
-    while (num_step-- > 0) {
+    while (!oid.equals("1.3.6.1.4.1")) {
       ret = get(oid, true);
       oid = m_recv.getPDU().getVarbindList().getVarbindAt(0).getVariable().toString();
-      Log.d("snmp", oid);
 
       msg = handler.obtainMessage();
       msg.obj = ret;
