@@ -99,18 +99,26 @@ public class SnmpManager {
   }
 
   public void Walk(Handler handler) throws Exception {
-    String oid = "1.2.1";
+    String oid = "1.3.6.1.2.1";
     String ret;
+    Variable val;
     android.os.Message msg;
+
     int num_step = 16;
 
-    while (!oid.equals("1.3.6.1.4.1")) {
+    while (true) {
       ret = get(oid, true);
       oid = m_recv.getPDU().getVarbindList().getVarbindAt(0).getVariable().toString();
 
       msg = handler.obtainMessage();
       msg.obj = ret;
       handler.sendMessage(msg);
+
+      val = m_recv.getPDU().getVarbindList().getVarbindAt(0).getValue();
+
+      if (val instanceof EndOfMIBView) {
+        break;
+      }
     }
   }
 
