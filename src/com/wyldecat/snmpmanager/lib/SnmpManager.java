@@ -118,6 +118,8 @@ public class SnmpManager {
     Variable val;
     android.os.Message msg;
 
+    m_send.getPDU().setRequestID((int)(Math.random() * 0xFFFFFFFF), 4);
+
     try {
       while (true) {
         ret = get(oid, true);

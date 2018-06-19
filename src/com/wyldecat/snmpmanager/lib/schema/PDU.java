@@ -36,6 +36,7 @@ public class PDU implements BERSerializable {
 
   public PDU setRequestID(int requestID, int rIDLength) {
     this.requestID = new Integer32(requestID, rIDLength);
+    updateLength();
     return this;
   }
 

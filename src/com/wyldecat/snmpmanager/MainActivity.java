@@ -75,6 +75,7 @@ public class MainActivity extends Activity {
     if (snmpManager.isWalking()) return;
 
     textViewTo.setText("");
+    textViewRes.setText("");
 
     try {
       textViewRes.setText(
@@ -100,6 +101,7 @@ public class MainActivity extends Activity {
     if (snmpManager.isWalking()) return;
 
     textViewTo.setText("");
+    textViewRes.setText("");
 
     new Thread(new Runnable() {
       private SnmpManager snmpManager;
