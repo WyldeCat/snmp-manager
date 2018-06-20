@@ -73,7 +73,7 @@ public class MainActivity extends Activity {
   }
 
   public void onGet(View view) {
-    if (snmpManager.isWalking()) return;
+    if (snmpManager.isWorking()) return;
 
     textViewTo.setText("");
     textViewRes.setText("");
@@ -99,7 +99,7 @@ public class MainActivity extends Activity {
   }
 
   public void onWalk(View view) {
-    if (snmpManager.isWalking()) return;
+    if (snmpManager.isWorking()) return;
 
     textViewTo.setText("");
     textViewRes.setText("");
@@ -117,7 +117,7 @@ public class MainActivity extends Activity {
 
       public void run() {
         try {
-          snmpManager.setIsWalking();
+          snmpManager.setIsWorking();
           snmpManager.Walk(handler);
         } catch (Exception ignore) {
           if (ignore instanceof SocketTimeoutException) {

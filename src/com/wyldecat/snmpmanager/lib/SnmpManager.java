@@ -31,7 +31,7 @@ public class SnmpManager {
   private Message m_recv;
   private Message m_send;
 
-  private final AtomicBoolean isWalking
+  private final AtomicBoolean isWorking
     = new AtomicBoolean(false);
 
   public SnmpManager(String addr, int port) {
@@ -78,13 +78,13 @@ public class SnmpManager {
     return OID;
   }
 
-  private String get(String oid, boolean isNextRequest) throws Exception {
+  private String request(String oid, Variable val, byte type) throws Exception {
     BEROutputStream bos = new BEROutputStream(ByteBuffer.wrap(buff_send));
     BERInputStream bis = new BERInputStream(ByteBuffer.wrap(buff_recv));
 
-    m_send.getPDU().setType((isNextRequest ? (byte)0xa1 : (byte)0xa0));
+    m_send.getPDU().setType(type);
     m_send.getPDU().getVarbindList().setVarbindAt(0, new Varbind(
-        new OID(oid), new Null()
+        new OID(oid), val
       )
     );
     m_send.updateLength();
@@ -105,16 +105,16 @@ public class SnmpManager {
     return m_recv.getPDU().getVarbindList().getVarbindAt(0).toString();
   }
 
-  public boolean isWalking() {
-    return isWalking.get();
+  public boolean isWorking() {
+    return isWorking.get();
   }
 
-  public void setIsWalking() {
-    isWalking.set(true);
+  public void setIsWorking() {
+    isWorking.set(true);
   }
 
   public String Get(String oid) throws Exception {
-    return get(oid, false);
+    return request(oid, new Null(), (byte)0xa0);
   }
 
   public void Walk(Handler handler) throws Exception {
@@ -127,7 +127,7 @@ public class SnmpManager {
 
     try {
       while (true) {
-        ret = get(oid, true);
+        ret = request(oid, new Null(), (byte)0xa1);
         oid = m_recv.getPDU().getVarbindList()
           .getVarbindAt(0).getVariable().toString();
 
@@ -142,12 +142,32 @@ public class SnmpManager {
         }
       }
 
-      isWalking.set(false);
+      isWorking.set(false);
     } catch (Exception e) {
-      isWalking.set(false);
+      isWorking.set(false);
       throw e;
     }
   }
 
-  public void Set() { }
+  public void Set(Handler handler, String oid, String val) throws Exception {
+    request(oid, new Null(), (byte)0xa0); 
+    Variable v = m_recv.getPDU().getVarbindList()
+      .getVarbindAt(0).getVariable();
+
+    if (v instanceof Integer32) {
+      v = new Integer32(Integer.parseInt(val));
+    }
+    else if (v instanceof OctetString) {
+      v = new OctetString(val);
+    }
+    else if (v instanceof OID) {
+      v = new OID(val);
+    }
+    else {
+      throw new Exception("Unsupported type");
+    }
+
+    request(oid, v, (byte)0xa2);
+  }
 }
+
