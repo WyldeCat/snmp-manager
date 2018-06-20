@@ -23,7 +23,7 @@ public class OctetString extends Variable {
   }
 
   public String toString() {
-    return str;
+    return "\"" + str "\"";
   }
 
   public void decodeBER(BERInputStream bis) throws IOException {

@@ -92,8 +92,13 @@ public class SnmpManager {
 
     pkt_send.setLength(m_send.getBERLength());
 
-    sock.send(pkt_send);
-    sock.receive(pkt_recv);
+    while (true) {
+      sock.send(pkt_send);
+      try {
+        sock.receive(pkt_recv);
+        break;
+      } catch (SocketTimeoutException ste) { }
+    }
 
     m_recv.decodeBER(bis);
 

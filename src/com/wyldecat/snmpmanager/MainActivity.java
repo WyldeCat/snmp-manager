@@ -35,6 +35,7 @@ public class MainActivity extends Activity {
         return;
       }
 
+      ((String)msg.obj).replace(" ", "\u00A0");
       textViewRes.append((String)msg.obj + "\n");
       scrollAmount =
         textViewRes.getLayout().getLineTop(textViewRes.getLineCount()) -
