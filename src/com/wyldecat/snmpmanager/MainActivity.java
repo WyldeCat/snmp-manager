@@ -59,7 +59,14 @@ public class MainActivity extends Activity {
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
-    snmpManager = new SnmpManager("kuwiden.iptime.org", 11161);
+    Thread initTh = new Thread() {
+      @Override
+      public void run() {
+        snmpManager = new SnmpManager("kuwiden.iptime.org", 11161);
+      }
+    };
+
+    initTh.start();
 
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
@@ -70,6 +77,13 @@ public class MainActivity extends Activity {
     textViewTo = (TextView)findViewById(R.id.text_view_to);
 
     textViewRes.setMovementMethod(new ScrollingMovementMethod());
+
+    try {
+      initTh.join();
+    } catch(Exception e) {
+      Log.d("[snmp]", getStackTrace(e));
+      textViewRes.append("Critical error!\n");
+    }
   }
 
   public void onGet(View view) {
@@ -109,7 +123,7 @@ public class MainActivity extends Activity {
           switch (type) {
           case 0xa0:
             Log.d("[snmp]", "Get");
-            snmpManager.Get(oid);
+            snmpManager.Get(handler, oid);
             break;
           case 0xa1:
             Log.d("[snmp]", "Walk");

@@ -81,6 +81,11 @@ public class SnmpManager {
   private String request(String oid, Variable val, byte type) throws Exception {
     BEROutputStream bos = new BEROutputStream(ByteBuffer.wrap(buff_send));
     BERInputStream bis = new BERInputStream(ByteBuffer.wrap(buff_recv));
+    if (type == (byte)0xa0 || type == (byte)0xa1) {
+      m_send.setCommunityString("public");
+    } else if(type == (byte)0xa3) {
+      m_send.setCommunityString("write");
+    }
 
     m_send.getPDU().setType(type);
     m_send.getPDU().getVarbindList().setVarbindAt(0, new Varbind(
@@ -105,6 +110,12 @@ public class SnmpManager {
     return m_recv.getPDU().getVarbindList().getVarbindAt(0).toString();
   }
 
+  private void sendMessage(Handler handler, String str) {
+    android.os.Message msg = handler.obtainMessage();
+    msg.obj = str;
+    handler.sendMessage(msg);
+  }
+
   public boolean isWorking() {
     return isWorking.get();
   }
@@ -113,8 +124,14 @@ public class SnmpManager {
     isWorking.set(true);
   }
 
-  public String Get(String oid) throws Exception {
-    return request(oid, new Null(), (byte)0xa0);
+  public void Get(Handler handler, String oid) throws Exception {
+    try {
+      sendMessage(handler, request(oid, new Null(), (byte)0xa0));
+      isWorking.set(false); 
+    } catch (Exception e) {
+      isWorking.set(false); 
+      throw e;
+    }
   }
 
   public void Walk(Handler handler) throws Exception {
@@ -131,12 +148,9 @@ public class SnmpManager {
         oid = m_recv.getPDU().getVarbindList()
           .getVarbindAt(0).getVariable().toString();
 
-        msg = handler.obtainMessage();
-        msg.obj = ret;
-        handler.sendMessage(msg);
+        sendMessage(handler, ret);
 
         val = m_recv.getPDU().getVarbindList().getVarbindAt(0).getValue();
-
         if (val instanceof EndOfMIBView) {
           break;
         }
@@ -153,7 +167,7 @@ public class SnmpManager {
     try {
       request(oid, new Null(), (byte)0xa0); 
       Variable v = m_recv.getPDU().getVarbindList()
-        .getVarbindAt(0).getVariable();
+        .getVarbindAt(0).getValue();
 
       if (v instanceof Integer32) {
         v = new Integer32(Integer.parseInt(val));
@@ -168,7 +182,12 @@ public class SnmpManager {
         throw new Exception("Unsupported type");
       }
 
-      request(oid, v, (byte)0xa3);
+      sendMessage(handler, request(oid, v, (byte)0xa3));
+      int errStatus = m_recv.getPDU().getErrorStatus().value;
+      if (errStatus != 0) {
+        sendMessage(handler, "Error Status: " + Integer.toString(errStatus));
+      }
+
       isWorking.set(false);
     } catch (Exception e) {
       isWorking.set(false);
