@@ -150,24 +150,30 @@ public class SnmpManager {
   }
 
   public void Set(Handler handler, String oid, String val) throws Exception {
-    request(oid, new Null(), (byte)0xa0); 
-    Variable v = m_recv.getPDU().getVarbindList()
-      .getVarbindAt(0).getVariable();
+    try {
+      request(oid, new Null(), (byte)0xa0); 
+      Variable v = m_recv.getPDU().getVarbindList()
+        .getVarbindAt(0).getVariable();
 
-    if (v instanceof Integer32) {
-      v = new Integer32(Integer.parseInt(val));
-    }
-    else if (v instanceof OctetString) {
-      v = new OctetString(val);
-    }
-    else if (v instanceof OID) {
-      v = new OID(val);
-    }
-    else {
-      throw new Exception("Unsupported type");
-    }
+      if (v instanceof Integer32) {
+        v = new Integer32(Integer.parseInt(val));
+      }
+      else if (v instanceof OctetString) {
+        v = new OctetString(val);
+      }
+      else if (v instanceof OID) {
+        v = new OID(val);
+      }
+      else {
+        throw new Exception("Unsupported type");
+      }
 
-    request(oid, v, (byte)0xa2);
+      request(oid, v, (byte)0xa3);
+      isWorking.set(false);
+    } catch (Exception e) {
+      isWorking.set(false);
+      throw e;
+    }
   }
 }
 

@@ -73,32 +73,20 @@ public class MainActivity extends Activity {
   }
 
   public void onGet(View view) {
-    if (snmpManager.isWorking()) return;
-
-    textViewTo.setText("");
-    textViewRes.setText("");
-
-    try {
-      textViewRes.setText(
-        snmpManager.Get(editTextOID.getText().toString()));
-      textViewRes.scrollTo(0, 0);
-    } catch (Exception ignore) {
-      if (ignore instanceof SocketTimeoutException) {
-        android.os.Message msg;
-
-        Log.d("[snmp]", ignore.toString());
-        Log.d("[snmp]", getStackTrace(ignore));
-
-        msg = handler.obtainMessage();
-        msg.obj = ignore;
-        handler.sendMessage(msg); 
-      }
-      Log.d("[snmp]", ignore.toString());
-      Log.d("[snmp]", getStackTrace(ignore));
-    }
+    call(0xa0, editTextOID.getText().toString(), null);
   }
 
   public void onWalk(View view) {
+    call(0xa1, null, null);
+  }
+
+  public void onSet(View view) {
+    call(0xa3,
+      editTextOID.getText().toString(),
+      editTextValue.getText().toString());
+  }
+
+  private void call(final int type, final String oid, final String val) {
     if (snmpManager.isWorking()) return;
 
     textViewTo.setText("");
@@ -118,7 +106,19 @@ public class MainActivity extends Activity {
       public void run() {
         try {
           snmpManager.setIsWorking();
-          snmpManager.Walk(handler);
+          switch (type) {
+          case 0xa0:
+            Log.d("[snmp]", "Get");
+            snmpManager.Get(oid);
+            break;
+          case 0xa1:
+            Log.d("[snmp]", "Walk");
+            snmpManager.Walk(handler);
+            break;
+          case 0xa3:
+            snmpManager.Set(handler, oid, val);
+            break;
+          }
         } catch (Exception ignore) {
           if (ignore instanceof SocketTimeoutException) {
             android.os.Message msg;
