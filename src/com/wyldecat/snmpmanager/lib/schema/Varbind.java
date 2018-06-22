@@ -35,7 +35,22 @@ public class Varbind implements BERSerializable {
   }
 
   public String toString() {
-    return variable.toString() + " = " + value.toString();
+    String type = "UNKNOWN";
+    if (value instanceof Counter32) {
+      type = "COUNTER";
+    } else if (value instanceof EndOfMIBView) {
+      type = "ENDOFMIBVIEW";
+    } else if (value instanceof Gauge32) {
+      type = "GAUGE";
+    } else if (value instanceof Integer32) {
+      type = "INTEGER";
+    } else if (value instanceof OctetString) {
+      type = "OCTETSTRING";
+    } else if (value instanceof OID) {
+      type = "OID";
+    }
+
+    return variable.toString() + " = " + type + ": " + value.toString();
   }
 
   public int getBERLength() {

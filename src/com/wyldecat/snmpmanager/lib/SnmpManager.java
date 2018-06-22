@@ -34,8 +34,11 @@ public class SnmpManager {
   private final AtomicBoolean isWorking
     = new AtomicBoolean(false);
 
+  /*
+   * a ctor of SnmpManager.
+   * Set timeout option about 10 secs.
+   */
   public SnmpManager(String addr, int port) {
-
     DatagramSocket _sock = null;
     InetAddress deviceAddr = null;
 
@@ -62,22 +65,12 @@ public class SnmpManager {
     );
   }
 
-  private String checkOID(String OID) throws Exception {
-    if (OID.charAt(0) == '1' && OID.charAt(1) == '.')  {
-      int nextDot = 1;
-      int calculated = 0;
-
-      while (OID.charAt(++nextDot) != '.');
-
-      calculated =
-        40 + Integer.parseInt(OID.substring(2, nextDot));
-
-      return Integer.toString(calculated) + OID.substring(nextDot);
-    }
-
-    return OID;
-  }
-
+  /*
+   * Requesting function.
+   * Send a SNMP message containing one of GetRequest-PDU,
+   * GetNextRequest-PDU or SetRequest-PDU to server. It retransmits message
+   * when timeout occur.
+   */
   private String request(String oid, Variable val, byte type) throws Exception {
     BEROutputStream bos = new BEROutputStream(ByteBuffer.wrap(buff_send));
     BERInputStream bis = new BERInputStream(ByteBuffer.wrap(buff_recv));
@@ -97,12 +90,18 @@ public class SnmpManager {
 
     pkt_send.setLength(m_send.getBERLength());
 
+    int num_retry = 0;
     while (true) {
       sock.send(pkt_send);
       try {
         sock.receive(pkt_recv);
         break;
-      } catch (SocketTimeoutException ste) { }
+      } catch (SocketTimeoutException ste) {
+        num_retry++;
+        if (num_retry == 10) {
+          throw ste;
+        }
+      }
     }
 
     m_recv.decodeBER(bis);
@@ -110,20 +109,33 @@ public class SnmpManager {
     return m_recv.getPDU().getVarbindList().getVarbindAt(0).toString();
   }
 
+  /*
+   * Sends string object to handler
+   */
   private void sendMessage(Handler handler, String str) {
     android.os.Message msg = handler.obtainMessage();
     msg.obj = str;
     handler.sendMessage(msg);
   }
 
+  /*
+   * Returns working flag
+   */
   public boolean isWorking() {
     return isWorking.get();
   }
 
+  /*
+   * Turns working flag on
+   */
   public void setIsWorking() {
     isWorking.set(true);
   }
 
+  /*
+   * A function for SNMP Get operation.
+   * Calls request function and sendMessage with return of the request call
+   */
   public void Get(Handler handler, String oid) throws Exception {
     try {
       sendMessage(handler, request(oid, new Null(), (byte)0xa0));
@@ -134,6 +146,10 @@ public class SnmpManager {
     }
   }
 
+  /*
+   * A function for SNMP Walk operation.
+   * Keep calling request function till met EndOfMIBView
+   */
   public void Walk(Handler handler) throws Exception {
     String oid = "1.3.6.1.2.1";
     String ret;
@@ -149,6 +165,7 @@ public class SnmpManager {
           .getVarbindAt(0).getVariable().toString();
 
         sendMessage(handler, ret);
+        Log.d("[snmp-walk]", ret);
 
         val = m_recv.getPDU().getVarbindList().getVarbindAt(0).getValue();
         if (val instanceof EndOfMIBView) {
@@ -163,6 +180,11 @@ public class SnmpManager {
     }
   }
 
+  /*
+   * A function for SNMP Set operation.
+   * Calls request function twice. First call is for checking value's type and
+   * Second call is for sending a set message.
+   */
   public void Set(Handler handler, String oid, String val) throws Exception {
     try {
       request(oid, new Null(), (byte)0xa0); 

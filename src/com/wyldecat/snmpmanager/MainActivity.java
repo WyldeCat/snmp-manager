@@ -25,6 +25,9 @@ public class MainActivity extends Activity {
   private TextView textViewRes;
   private TextView textViewTo;
 
+  /*
+   * Handler receive messages and update UI with them
+   */
   final private Handler handler = new Handler(){
     @Override
     public void handleMessage(Message msg) {
@@ -50,6 +53,9 @@ public class MainActivity extends Activity {
     }
   };
 
+  /*
+   * A function stringify stacktrace
+   */
   private String getStackTrace(Exception e) {
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
     PrintStream printStream = new PrintStream(baos);
@@ -59,6 +65,7 @@ public class MainActivity extends Activity {
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
+    // create thread and init snmpManager
     Thread initTh = new Thread() {
       @Override
       public void run() {
@@ -86,20 +93,33 @@ public class MainActivity extends Activity {
     }
   }
 
+  /*
+   * GET Button's listener
+   */
   public void onGet(View view) {
     call(0xa0, editTextOID.getText().toString(), null);
   }
 
+  /*
+   * WALK Button's listener
+   */
   public void onWalk(View view) {
     call(0xa1, null, null);
   }
 
+  /*
+   * SET Button's listener
+   */
   public void onSet(View view) {
     call(0xa3,
       editTextOID.getText().toString(),
       editTextValue.getText().toString());
   }
 
+  /*
+   * call() create new thread and call appropriate snmpManager's function.
+   * check whether snmpManager is busy or not
+   */
   private void call(final int type, final String oid, final String val) {
     if (snmpManager.isWorking()) return;
 
@@ -130,6 +150,7 @@ public class MainActivity extends Activity {
             snmpManager.Walk(handler);
             break;
           case 0xa3:
+            Log.d("[snmp]", "Set");
             snmpManager.Set(handler, oid, val);
             break;
           }
